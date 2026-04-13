@@ -1,0 +1,71 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 5%;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo a {
+  font-family: var(--font-playfair);
+  font-size: 2rem;
+  letter-spacing: 4px;
+  color: var(--gold-accent);
+}
+
+.nav {
+  display: flex;
+  gap: 3rem;
+}
+
+.nav a {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.greeting {
+  color: var(--text-secondary);
+  text-transform: none;
+  font-family: var(--font-playfair);
+  font-style: italic;
+}
+
+.logoutBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: var(--font-inter);
+}
+
+.logoutBtn:hover {
+  color: var(--gold-accent);
+}
+
+.cartLink {
+  color: var(--gold-accent);
+}
+
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+  }
+}
