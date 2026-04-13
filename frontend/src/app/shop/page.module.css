@@ -1,0 +1,62 @@
+.shopContainer {
+  padding: 4rem 5%;
+}
+
+.title {
+  text-align: center;
+  font-size: 3.5rem;
+  margin-bottom: 4rem;
+}
+
+.loading {
+  text-align: center;
+  color: var(--gold-accent);
+  font-size: 1.2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2.5rem;
+}
+
+.productCard {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.productCard:hover {
+  transform: translateY(-5px);
+  border-color: var(--gold-accent);
+}
+
+.imagePlaceholder {
+  height: 350px;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.productInfo {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.productInfo h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-family: var(--font-inter);
+}
+
+.price {
+  color: var(--gold-accent);
+  font-weight: 600;
+}
