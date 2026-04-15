@@ -1,4 +1,12 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+// Ensure NEXT_PUBLIC_API_URL is used in production, otherwise fallback to localhost
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.NEXT_PUBLIC_API_URL
+    : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api");
+
+if (process.env.NODE_ENV === "production" && !API_URL) {
+  console.error("FATAL ERROR: NEXT_PUBLIC_API_URL is not set in production.");
+}
 
 class ApiClient {
   async request(endpoint, options = {}) {

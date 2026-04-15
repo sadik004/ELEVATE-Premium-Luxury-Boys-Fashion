@@ -25,7 +25,7 @@ router.post("/register", async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET || "elevate_secret_key_123",
+      process.env.JWT_SECRET,
     );
     res
       .status(201)
@@ -55,7 +55,7 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET || "elevate_secret_key_123",
+      process.env.JWT_SECRET,
     );
     res.json({
       token,
