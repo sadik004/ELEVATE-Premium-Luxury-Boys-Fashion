@@ -191,9 +191,15 @@ async function main() {
   ];
 
   for (const prod of products) {
-    await prisma.product.create({
-      data: prod,
+    // Prevent duplicating products by finding if one with the same name exists first
+    const existingProduct = await prisma.product.findFirst({
+      where: { name: prod.name },
     });
+    if (!existingProduct) {
+      await prisma.product.create({
+        data: prod,
+      });
+    }
   }
 }
 

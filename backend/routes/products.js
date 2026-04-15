@@ -11,9 +11,15 @@ router.get("/", async (req, res) => {
         category: true,
       },
     });
-    res.json(products);
+    // Return empty array if no products found, ensuring frontend doesn't crash
+    res.json(products || []);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching products:", error);
+    // If DB is not yet initialized or errors out, gracefully return an empty array or proper error
+    if (error.code === 'P2021' || error.message.includes('does not exist')) {
+       // Table does not exist yet
+       return res.json([]);
+    }
     res.status(500).json({ message: "Server Error" });
   }
 });

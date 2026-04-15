@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
+const { exec } = require("child_process");
 const productRoutes = require("./routes/products");
 const categoryRoutes = require("./routes/categories");
 const authRoutes = require("./routes/auth");
@@ -41,4 +42,21 @@ app.get("/api/health", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+
+  // Auto-initialize DB on startup for Render Free plan
+  if (process.env.NODE_ENV === "production") {
+    console.log("Running automated DB initialization...");
+
+    // Run Prisma DB push automatically
+    exec("npx prisma db push --accept-data-loss", (err, stdout, stderr) => {
+      console.log("DB PUSH:", stdout || stderr || err);
+
+      if (!err) {
+        // Run seed script after successful push
+        exec("npm run seed", (seedErr, seedStdout, seedStderr) => {
+          console.log("SEED:", seedStdout || seedStderr || seedErr);
+        });
+      }
+    });
+  }
 });
