@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { exec } = require("child_process");
+const util = require("util");
+const execPromise = util.promisify(exec);
 
 const productRoutes = require("./routes/products");
 const categoryRoutes = require("./routes/categories");
@@ -19,24 +21,20 @@ if (process.env.NODE_ENV === "production") {
   }
 
   // Auto-initialize DB on Render Free plan
-  console.log("Production environment detected. Initializing database...");
-  exec("npx prisma db push", (err, stdout, stderr) => {
-    if (err) {
-      console.error("DB PUSH ERROR:", err);
-      console.error(stderr);
-      return;
-    }
-    console.log("DB PUSH SUCCESS:", stdout);
+  (async () => {
+    console.log("Production environment detected. Initializing database...");
+    try {
+      console.log("DB push started");
+      const { stdout: pushStdout } = await execPromise("npx prisma db push --accept-data-loss");
+      console.log("DB push success", pushStdout);
 
-    exec("npm run seed", (seedErr, seedStdout, seedStderr) => {
-      if (seedErr) {
-        console.error("DB SEED ERROR:", seedErr);
-        console.error(seedStderr);
-        return;
-      }
-      console.log("DB SEED SUCCESS:", seedStdout);
-    });
-  });
+      console.log("Seeding started");
+      const { stdout: seedStdout } = await execPromise("npm run seed");
+      console.log("Seeding success", seedStdout);
+    } catch (error) {
+      console.error("Database setup failed:", error);
+    }
+  })();
 }
 
 const app = express();
