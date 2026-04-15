@@ -13,7 +13,11 @@ router.get("/", async (req, res) => {
     });
     res.json(products);
   } catch (error) {
-    console.error(error);
+    console.error("GET /products error:", error.message);
+    if (error.code === "P2021") {
+      // Table doesn't exist yet
+      return res.json([]);
+    }
     res.status(500).json({ message: "Server Error" });
   }
 });
@@ -32,7 +36,11 @@ router.get("/:id", async (req, res) => {
 
     res.json(product);
   } catch (error) {
-    console.error(error);
+    console.error("GET /products/:id error:", error.message);
+    if (error.code === "P2021") {
+      // Table doesn't exist yet
+      return res.status(404).json({ message: "Product not found" });
+    }
     res.status(500).json({ message: "Server Error" });
   }
 });
