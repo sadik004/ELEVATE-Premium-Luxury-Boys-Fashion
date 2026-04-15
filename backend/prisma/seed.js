@@ -2,6 +2,11 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
+  // Clear existing data safely to avoid foreign key constraint errors
+  console.log("Clearing existing data...");
+  await prisma.orderItem.deleteMany();
+  await prisma.product.deleteMany();
+
   // Categories
   const categories = [
     { name: "Suits & Tuxedos", slug: "suits-tuxedos" },
@@ -11,6 +16,7 @@ async function main() {
     { name: "Accessories", slug: "accessories" },
   ];
 
+  console.log("Upserting categories...");
   for (const cat of categories) {
     await prisma.category.upsert({
       where: { slug: cat.slug },
@@ -35,192 +41,62 @@ async function main() {
     where: { slug: "accessories" },
   });
 
-  const products = [
-    // Suits
-    {
-      name: "Midnight Blue Wool Suit",
-      slug: "midnight-blue-wool-suit",
-      description: "Classic fit, 100% fine wool.",
-      price: 450.0,
-      image: "/images/suit-blue.jpg",
-      categoryId: suitsCat.id,
-    },
-    {
-      name: "Charcoal Grey Tuxedo",
-      slug: "charcoal-grey-tuxedo",
-      description: "Elegant evening wear.",
-      price: 550.0,
-      image: "/images/tux-grey.jpg",
-      categoryId: suitsCat.id,
-    },
-    {
-      name: "Ivory Linen Suit",
-      slug: "ivory-linen-suit",
-      description: "Perfect for summer events.",
-      price: 380.0,
-      image: "/images/suit-ivory.jpg",
-      categoryId: suitsCat.id,
-    },
-    {
-      name: "Velvet Dinner Jacket",
-      slug: "velvet-dinner-jacket",
-      description: "Plush velvet jacket with satin lapels.",
-      price: 400.0,
-      image: "/images/jacket-velvet.jpg",
-      categoryId: suitsCat.id,
-    },
-    // Shirts
-    {
-      name: "Crisp White Poplin Shirt",
-      slug: "crisp-white-poplin-shirt",
-      description: "Essential formal shirt.",
-      price: 120.0,
-      image: "/images/shirt-white.jpg",
-      categoryId: shirtsCat.id,
-    },
-    {
-      name: "Light Blue Oxford",
-      slug: "light-blue-oxford",
-      description: "Versatile button-down.",
-      price: 110.0,
-      image: "/images/shirt-blue.jpg",
-      categoryId: shirtsCat.id,
-    },
-    {
-      name: "Silk Blend Dress Shirt",
-      slug: "silk-blend-dress-shirt",
-      description: "Luxurious feel and subtle sheen.",
-      price: 180.0,
-      image: "/images/shirt-silk.jpg",
-      categoryId: shirtsCat.id,
-    },
-    {
-      name: "Pinstripe Formal Shirt",
-      slug: "pinstripe-formal-shirt",
-      description: "Classic business styling adapted for boys.",
-      price: 130.0,
-      image: "/images/shirt-stripe.jpg",
-      categoryId: shirtsCat.id,
-    },
-    {
-      name: "Black Cotton T-Shirt",
-      slug: "black-cotton-t-shirt",
-      description: "Premium casual staple.",
-      price: 60.0,
-      image: "/images/tshirt-black.jpg",
-      categoryId: shirtsCat.id,
-    },
-    // Trousers
-    {
-      name: "Tailored Wool Trousers",
-      slug: "tailored-wool-trousers",
-      description: "Pleated wool blend trousers.",
-      price: 150.0,
-      image: "/images/pants-wool.jpg",
-      categoryId: pantsCat.id,
-    },
-    {
-      name: "Cotton Chinos",
-      slug: "cotton-chinos",
-      description: "Smart casual essential.",
-      price: 95.0,
-      image: "/images/pants-chinos.jpg",
-      categoryId: pantsCat.id,
-    },
-    {
-      name: "Linen Shorts",
-      slug: "linen-shorts",
-      description: "Breathable summer wear.",
-      price: 80.0,
-      image: "/images/shorts-linen.jpg",
-      categoryId: pantsCat.id,
-    },
-    {
-      name: "Formal Tuxedo Pants",
-      slug: "formal-tuxedo-pants",
-      description: "Matching trousers with satin stripe.",
-      price: 180.0,
-      image: "/images/pants-tux.jpg",
-      categoryId: pantsCat.id,
-    },
-    // Outerwear
-    {
-      name: "Cashmere Blend Overcoat",
-      slug: "cashmere-blend-overcoat",
-      description: "Winter luxury.",
-      price: 650.0,
-      image: "/images/coat-cashmere.jpg",
-      categoryId: outCat.id,
-    },
-    {
-      name: "Trench Coat",
-      slug: "trench-coat",
-      description: "Classic water-resistant design.",
-      price: 320.0,
-      image: "/images/coat-trench.jpg",
-      categoryId: outCat.id,
-    },
-    {
-      name: "Leather Biker Jacket",
-      slug: "leather-biker-jacket",
-      description: "Edgy yet refined.",
-      price: 480.0,
-      image: "/images/jacket-leather.jpg",
-      categoryId: outCat.id,
-    },
-    {
-      name: "Quilted Vest",
-      slug: "quilted-vest",
-      description: "Layering piece for transitional weather.",
-      price: 210.0,
-      image: "/images/vest-quilted.jpg",
-      categoryId: outCat.id,
-    },
-    // Accessories
-    {
-      name: "Silk Bow Tie",
-      slug: "silk-bow-tie",
-      description: "Pre-tied black silk.",
-      price: 45.0,
-      image: "/images/tie-bow.jpg",
-      categoryId: accCat.id,
-    },
-    {
-      name: "Leather Belt",
-      slug: "leather-belt",
-      description: "Full grain leather with brass buckle.",
-      price: 75.0,
-      image: "/images/belt-leather.jpg",
-      categoryId: accCat.id,
-    },
-    {
-      name: "Silk Pocket Square",
-      slug: "silk-pocket-square",
-      description: "Hand-rolled edges.",
-      price: 35.0,
-      image: "/images/pocket-square.jpg",
-      categoryId: accCat.id,
-    },
-    {
-      name: "Oxford Shoes",
-      slug: "oxford-shoes",
-      description: "Classic black leather lace-ups.",
-      price: 220.0,
-      image: "/images/shoes-oxford.jpg",
-      categoryId: accCat.id,
-    },
+  const rawProducts = [
+    { name: "Midnight Blue Wool Suit", image: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7" },
+    { name: "Charcoal Grey Tuxedo", image: "https://images.unsplash.com/photo-1520975922203-bf6e8f1b1f6b" },
+    { name: "Ivory Linen Suit", image: "https://images.unsplash.com/photo-1520975661595-6453be3f7070" },
+    { name: "Velvet Dinner Jacket", image: "https://images.unsplash.com/photo-1542060748-10c28b62716a" },
+    { name: "Classic Black Suit", image: "https://images.unsplash.com/photo-1516826957135-700dedea698c" },
+    { name: "Navy Slim Fit Suit", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab" },
+    { name: "Double Breasted Suit", image: "https://images.unsplash.com/photo-1520974735194-1c0bba3c1b7b" },
+    { name: "Wedding White Tuxedo", image: "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543" },
+    { name: "Casual Blazer", image: "https://images.unsplash.com/photo-1490111718993-d98654ce6cf7" },
+    { name: "Formal Coat", image: "https://images.unsplash.com/photo-1520975661595-6453be3f7070" },
+    { name: "Luxury Overcoat", image: "https://images.unsplash.com/photo-1542060748-10c28b62716a" },
+    { name: "Winter Trench Coat", image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f" },
+    { name: "Business Suit Set", image: "https://images.unsplash.com/photo-1516826957135-700dedea698c" },
+    { name: "Premium Wool Coat", image: "https://images.unsplash.com/photo-1520975922203-bf6e8f1b1f6b" },
+    { name: "Modern Grey Suit", image: "https://images.unsplash.com/photo-1520974735194-1c0bba3c1b7b" },
+    { name: "Designer Blazer", image: "https://images.unsplash.com/photo-1490111718993-d98654ce6cf7" },
+    { name: "Elegant Evening Suit", image: "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543" },
+    { name: "Luxury Cashmere Coat", image: "https://images.unsplash.com/photo-1542060748-10c28b62716a" },
+    { name: "Office Formal Suit", image: "https://images.unsplash.com/photo-1516826957135-700dedea698c" },
+    { name: "Classic Brown Blazer", image: "https://images.unsplash.com/photo-1490111718993-d98654ce6cf7" },
+    { name: "Premium Black Overcoat", image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f" }
   ];
 
-  const processedProducts = products.map((p) => ({
-    ...p,
-    description: p.description || "Premium product",
-    image: p.image || "https://via.placeholder.com/300",
-  }));
+  function generateSlug(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  }
 
+  function getCategoryForName(name) {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes("coat") || lowerName.includes("overcoat")) return outCat.id;
+    if (lowerName.includes("blazer")) return suitsCat.id;
+    return suitsCat.id; // Defaulting to suits as most of them are suits/tuxedos
+  }
+
+  const processedProducts = rawProducts.map((p) => {
+    // Generate a price between $200 and $900
+    const randomPrice = Math.floor(Math.random() * (900 - 200 + 1) + 200);
+
+    return {
+      name: p.name,
+      slug: generateSlug(p.name),
+      description: "A premium luxury piece crafted with the finest materials for a sophisticated look.",
+      price: randomPrice,
+      image: p.image,
+      categoryId: getCategoryForName(p.name)
+    };
+  });
+
+  console.log(`Seeding ${processedProducts.length} premium products...`);
   await prisma.product.createMany({
     data: processedProducts,
-    skipDuplicates: true,
+
   });
+
+  console.log("Seeding completed.");
 }
 
 main()
