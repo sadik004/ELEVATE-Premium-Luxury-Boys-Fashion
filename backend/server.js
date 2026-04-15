@@ -48,6 +48,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Serve static images from public/images
+const path = require("path");
+app.use("/images", express.static(path.join(__dirname, "public/images")));
+
 // Routes
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);

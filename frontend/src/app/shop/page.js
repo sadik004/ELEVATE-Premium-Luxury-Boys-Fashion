@@ -37,7 +37,15 @@ export default function Shop() {
               className={styles.productCard}
             >
               <div className={styles.imagePlaceholder}>
-                <span>View Detail</span>
+                {product.image ? (
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${product.image}`}
+                    alt={product.name}
+                    className={styles.productImage}
+                  />
+                ) : (
+                  <span>View Detail</span>
+                )}
               </div>
               <div className={styles.productInfo}>
                 <h3>{product.name}</h3>

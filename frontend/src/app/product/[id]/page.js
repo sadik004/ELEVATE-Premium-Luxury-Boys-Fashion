@@ -31,7 +31,17 @@ export default function ProductDetail({ params }) {
   return (
     <div className={styles.detailContainer}>
       <div className={styles.imageSection}>
-        <div className={styles.imagePlaceholder}>Product Image</div>
+        <div className={styles.imagePlaceholder}>
+          {product.image ? (
+            <img
+              src={`${process.env.NEXT_PUBLIC_API_URL}${product.image}`}
+              alt={product.name}
+              className={styles.detailImage}
+            />
+          ) : (
+            <span>Product Image</span>
+          )}
+        </div>
       </div>
       <div className={styles.infoSection}>
         <h4 className={styles.category}>{product.category?.name}</h4>
