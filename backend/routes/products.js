@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
   } catch (error) {
     console.error("Error fetching products:", error);
     // If DB is not yet initialized or errors out, gracefully return an empty array or proper error
-    if (error.code === 'P2021' || error.message.includes('does not exist')) {
+    if (error?.code === 'P2021' || error?.message?.includes('does not exist')) {
        // Table does not exist yet
        return res.json([]);
     }
