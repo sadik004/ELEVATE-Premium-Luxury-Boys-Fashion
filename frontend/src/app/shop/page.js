@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { api } from "@/lib/api";
+import { getImageUrl } from "@/lib/imageUrl";
 import styles from "./page.module.css";
 
 export default function Shop() {
@@ -37,7 +39,16 @@ export default function Shop() {
               className={styles.productCard}
             >
               <div className={styles.imagePlaceholder}>
-                <span>View Detail</span>
+                {product.image ? (
+                  <Image
+                    src={getImageUrl(product.image)}
+                    alt={product.name}
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  <span>View Detail</span>
+                )}
               </div>
               <div className={styles.productInfo}>
                 <h3>{product.name}</h3>

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import Image from "next/image";
 import { api } from "@/lib/api";
 import { useCartStore } from "@/lib/cartStore";
+import { getImageUrl } from "@/lib/imageUrl";
 import styles from "./page.module.css";
 
 export default function ProductDetail({ params }) {
@@ -31,7 +33,18 @@ export default function ProductDetail({ params }) {
   return (
     <div className={styles.detailContainer}>
       <div className={styles.imageSection}>
-        <div className={styles.imagePlaceholder}>Product Image</div>
+        <div className={styles.imagePlaceholder}>
+          {product.image ? (
+            <Image
+              src={getImageUrl(product.image)}
+              alt={product.name}
+              fill
+              style={{ objectFit: "cover" }}
+            />
+          ) : (
+            <span>Product Image</span>
+          )}
+        </div>
       </div>
       <div className={styles.infoSection}>
         <h4 className={styles.category}>{product.category?.name}</h4>
