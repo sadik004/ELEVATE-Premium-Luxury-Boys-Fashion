@@ -211,8 +211,14 @@ async function main() {
     },
   ];
 
+  const processedProducts = products.map((p) => ({
+    ...p,
+    description: p.description || "Premium product",
+    image: p.image || "https://via.placeholder.com/300",
+  }));
+
   await prisma.product.createMany({
-    data: products,
+    data: processedProducts,
     skipDuplicates: true,
   });
 }
