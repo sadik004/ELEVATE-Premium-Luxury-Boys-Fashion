@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const { exec } = require("child_process");
 const util = require("util");
@@ -47,6 +48,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Static images
+app.use("/images", express.static(path.join(__dirname, "public/images")));
 
 // Routes
 app.use("/api/products", productRoutes);
