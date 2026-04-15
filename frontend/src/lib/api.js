@@ -1,16 +1,23 @@
 // Ensure NEXT_PUBLIC_API_URL is used in production, otherwise fallback to localhost
-const API_URL =
+let rawApiUrl =
   process.env.NODE_ENV === "production"
     ? process.env.NEXT_PUBLIC_API_URL
     : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api");
 
-if (process.env.NODE_ENV === "production" && !API_URL) {
+if (process.env.NODE_ENV === "production" && !rawApiUrl) {
   console.error("FATAL ERROR: NEXT_PUBLIC_API_URL is not set in production.");
+  rawApiUrl = ""; // Fallback to avoid crashes, though it should be set
 }
+
+// Normalize the base URL to consistently end with `/api` and avoid trailing slashes
+const normalizedApiUrl = rawApiUrl ? rawApiUrl.replace(/\/+$/, "") : "";
+const API_URL = normalizedApiUrl.endsWith("/api") ? normalizedApiUrl : `${normalizedApiUrl}/api`;
 
 class ApiClient {
   async request(endpoint, options = {}) {
-    const url = `${API_URL}${endpoint}`;
+    // Ensure endpoint starts with a slash
+    const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    const url = `${API_URL}${normalizedEndpoint}`;
 
     // Get token from localStorage if in browser
     let token = null;
