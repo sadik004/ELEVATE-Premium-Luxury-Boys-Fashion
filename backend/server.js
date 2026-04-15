@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const { exec } = require("child_process");
 
 const productRoutes = require("./routes/products");
 const categoryRoutes = require("./routes/categories");
@@ -16,6 +17,26 @@ if (process.env.NODE_ENV === "production") {
     console.error(`FATAL ERROR: Missing required environment variables: ${missingEnvVars.join(", ")}`);
     process.exit(1);
   }
+
+  // Auto-initialize DB on Render Free plan
+  console.log("Production environment detected. Initializing database...");
+  exec("npx prisma db push", (err, stdout, stderr) => {
+    if (err) {
+      console.error("DB PUSH ERROR:", err);
+      console.error(stderr);
+      return;
+    }
+    console.log("DB PUSH SUCCESS:", stdout);
+
+    exec("npm run seed", (seedErr, seedStdout, seedStderr) => {
+      if (seedErr) {
+        console.error("DB SEED ERROR:", seedErr);
+        console.error(seedStderr);
+        return;
+      }
+      console.log("DB SEED SUCCESS:", seedStdout);
+    });
+  });
 }
 
 const app = express();

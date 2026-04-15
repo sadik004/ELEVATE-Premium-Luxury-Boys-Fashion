@@ -39,6 +39,7 @@ async function main() {
     // Suits
     {
       name: "Midnight Blue Wool Suit",
+      slug: "midnight-blue-wool-suit",
       description: "Classic fit, 100% fine wool.",
       price: 450.0,
       image: "/images/suit-blue.jpg",
@@ -46,6 +47,7 @@ async function main() {
     },
     {
       name: "Charcoal Grey Tuxedo",
+      slug: "charcoal-grey-tuxedo",
       description: "Elegant evening wear.",
       price: 550.0,
       image: "/images/tux-grey.jpg",
@@ -53,6 +55,7 @@ async function main() {
     },
     {
       name: "Ivory Linen Suit",
+      slug: "ivory-linen-suit",
       description: "Perfect for summer events.",
       price: 380.0,
       image: "/images/suit-ivory.jpg",
@@ -60,6 +63,7 @@ async function main() {
     },
     {
       name: "Velvet Dinner Jacket",
+      slug: "velvet-dinner-jacket",
       description: "Plush velvet jacket with satin lapels.",
       price: 400.0,
       image: "/images/jacket-velvet.jpg",
@@ -68,6 +72,7 @@ async function main() {
     // Shirts
     {
       name: "Crisp White Poplin Shirt",
+      slug: "crisp-white-poplin-shirt",
       description: "Essential formal shirt.",
       price: 120.0,
       image: "/images/shirt-white.jpg",
@@ -75,6 +80,7 @@ async function main() {
     },
     {
       name: "Light Blue Oxford",
+      slug: "light-blue-oxford",
       description: "Versatile button-down.",
       price: 110.0,
       image: "/images/shirt-blue.jpg",
@@ -82,6 +88,7 @@ async function main() {
     },
     {
       name: "Silk Blend Dress Shirt",
+      slug: "silk-blend-dress-shirt",
       description: "Luxurious feel and subtle sheen.",
       price: 180.0,
       image: "/images/shirt-silk.jpg",
@@ -89,6 +96,7 @@ async function main() {
     },
     {
       name: "Pinstripe Formal Shirt",
+      slug: "pinstripe-formal-shirt",
       description: "Classic business styling adapted for boys.",
       price: 130.0,
       image: "/images/shirt-stripe.jpg",
@@ -96,6 +104,7 @@ async function main() {
     },
     {
       name: "Black Cotton T-Shirt",
+      slug: "black-cotton-t-shirt",
       description: "Premium casual staple.",
       price: 60.0,
       image: "/images/tshirt-black.jpg",
@@ -104,6 +113,7 @@ async function main() {
     // Trousers
     {
       name: "Tailored Wool Trousers",
+      slug: "tailored-wool-trousers",
       description: "Pleated wool blend trousers.",
       price: 150.0,
       image: "/images/pants-wool.jpg",
@@ -111,6 +121,7 @@ async function main() {
     },
     {
       name: "Cotton Chinos",
+      slug: "cotton-chinos",
       description: "Smart casual essential.",
       price: 95.0,
       image: "/images/pants-chinos.jpg",
@@ -118,6 +129,7 @@ async function main() {
     },
     {
       name: "Linen Shorts",
+      slug: "linen-shorts",
       description: "Breathable summer wear.",
       price: 80.0,
       image: "/images/shorts-linen.jpg",
@@ -125,6 +137,7 @@ async function main() {
     },
     {
       name: "Formal Tuxedo Pants",
+      slug: "formal-tuxedo-pants",
       description: "Matching trousers with satin stripe.",
       price: 180.0,
       image: "/images/pants-tux.jpg",
@@ -133,6 +146,7 @@ async function main() {
     // Outerwear
     {
       name: "Cashmere Blend Overcoat",
+      slug: "cashmere-blend-overcoat",
       description: "Winter luxury.",
       price: 650.0,
       image: "/images/coat-cashmere.jpg",
@@ -140,6 +154,7 @@ async function main() {
     },
     {
       name: "Trench Coat",
+      slug: "trench-coat",
       description: "Classic water-resistant design.",
       price: 320.0,
       image: "/images/coat-trench.jpg",
@@ -147,6 +162,7 @@ async function main() {
     },
     {
       name: "Leather Biker Jacket",
+      slug: "leather-biker-jacket",
       description: "Edgy yet refined.",
       price: 480.0,
       image: "/images/jacket-leather.jpg",
@@ -154,6 +170,7 @@ async function main() {
     },
     {
       name: "Quilted Vest",
+      slug: "quilted-vest",
       description: "Layering piece for transitional weather.",
       price: 210.0,
       image: "/images/vest-quilted.jpg",
@@ -162,6 +179,7 @@ async function main() {
     // Accessories
     {
       name: "Silk Bow Tie",
+      slug: "silk-bow-tie",
       description: "Pre-tied black silk.",
       price: 45.0,
       image: "/images/tie-bow.jpg",
@@ -169,6 +187,7 @@ async function main() {
     },
     {
       name: "Leather Belt",
+      slug: "leather-belt",
       description: "Full grain leather with brass buckle.",
       price: 75.0,
       image: "/images/belt-leather.jpg",
@@ -176,6 +195,7 @@ async function main() {
     },
     {
       name: "Silk Pocket Square",
+      slug: "silk-pocket-square",
       description: "Hand-rolled edges.",
       price: 35.0,
       image: "/images/pocket-square.jpg",
@@ -183,6 +203,7 @@ async function main() {
     },
     {
       name: "Oxford Shoes",
+      slug: "oxford-shoes",
       description: "Classic black leather lace-ups.",
       price: 220.0,
       image: "/images/shoes-oxford.jpg",
@@ -190,11 +211,10 @@ async function main() {
     },
   ];
 
-  for (const prod of products) {
-    await prisma.product.create({
-      data: prod,
-    });
-  }
+  await prisma.product.createMany({
+    data: products,
+    skipDuplicates: true,
+  });
 }
 
 main()
