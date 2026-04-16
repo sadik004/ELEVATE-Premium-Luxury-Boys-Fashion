@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { api } from "@/lib/api";
+import Image from "next/image";
+import { api, BASE_URL } from "@/lib/api";
 import styles from "./page.module.css";
 
 export default function Shop() {
@@ -15,7 +16,7 @@ export default function Shop() {
         const data = await api.get("/products");
         setProducts(data);
       } catch (error) {
-        console.error("Failed to load products", error);
+        console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
@@ -32,15 +33,21 @@ export default function Shop() {
         <div className={styles.grid}>
           {products.map((product) => (
             <Link
-              href={`/product/${product.id}`}
+              href={`/product/${product.slug}`}
               key={product.id}
               className={styles.productCard}
             >
               <div className={styles.imagePlaceholder}>
-                <span>View Detail</span>
+                <Image
+                  src={product.image.startsWith("http") ? product.image : `${BASE_URL}${product.image}`}
+                  alt={product.name}
+                  fill
+                  style={{ objectFit: "cover" }}
+                />
               </div>
               <div className={styles.productInfo}>
                 <h3>{product.name}</h3>
+                <p className={styles.description}>{product.description}</p>
                 <p className={styles.price}>${product.price.toFixed(2)}</p>
               </div>
             </Link>

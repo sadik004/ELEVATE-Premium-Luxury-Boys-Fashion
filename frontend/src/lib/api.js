@@ -2,16 +2,17 @@
 let rawApiUrl =
   process.env.NODE_ENV === "production"
     ? process.env.NEXT_PUBLIC_API_URL
-    : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api");
+    : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
 
 if (process.env.NODE_ENV === "production" && !rawApiUrl) {
   console.error("FATAL ERROR: NEXT_PUBLIC_API_URL is not set in production.");
   rawApiUrl = ""; // Fallback to avoid crashes, though it should be set
 }
 
-// Normalize the base URL to consistently end with `/api` and avoid trailing slashes
-const normalizedApiUrl = rawApiUrl ? rawApiUrl.replace(/\/+$/, "") : "";
-const API_URL = normalizedApiUrl.endsWith("/api") ? normalizedApiUrl : `${normalizedApiUrl}/api`;
+// Normalize the base URL to consistently remove trailing slashes
+export const BASE_URL = rawApiUrl ? rawApiUrl.replace(/\/+$/, "") : "";
+// API_URL strictly appends /api to the base URL
+const API_URL = BASE_URL ? `${BASE_URL}/api` : "/api";
 
 class ApiClient {
   async request(endpoint, options = {}) {

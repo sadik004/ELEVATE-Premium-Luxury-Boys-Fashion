@@ -11,6 +11,8 @@
 }
 
 .imagePlaceholder {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   height: 600px;
   background: #111;
