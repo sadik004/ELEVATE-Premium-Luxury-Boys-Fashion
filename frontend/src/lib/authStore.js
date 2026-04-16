@@ -4,7 +4,7 @@ import { api } from "./api";
 
 export const useAuthStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       token: null,
       user: null,
 
@@ -20,6 +20,18 @@ export const useAuthStore = create(
           password,
         });
         set({ token: data.token, user: data.user });
+      },
+
+      fetchProfile: async () => {
+        try {
+          const token = get().token;
+          if (!token) return;
+          const data = await api.get("/auth/me");
+          set({ user: data });
+        } catch (error) {
+          console.error("Failed to fetch profile", error);
+          set({ token: null, user: null });
+        }
       },
 
       logout: () => {

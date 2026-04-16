@@ -18,7 +18,7 @@ export default function Register() {
     e.preventDefault();
     try {
       await register(name, email, password);
-      router.push("/shop");
+      router.push("/cart");
     } catch (err) {
       setError(err.message || "Registration failed");
     }

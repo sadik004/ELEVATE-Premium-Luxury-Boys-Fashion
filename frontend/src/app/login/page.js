@@ -17,9 +17,9 @@ export default function Login() {
     e.preventDefault();
     try {
       await login(email, password);
-      router.push("/shop");
+      router.push("/cart");
     } catch (err) {
-      setError("Invalid email or password");
+      setError(err.message || "Invalid email or password");
     }
   };
 

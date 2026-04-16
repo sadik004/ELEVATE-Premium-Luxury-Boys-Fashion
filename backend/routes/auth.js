@@ -4,6 +4,20 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const requireAuth = require("../middleware/auth");
+
+router.get("/me", requireAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: "Server Error fetching profile" });
+  }
+});
 
 router.post("/register", async (req, res) => {
   try {
