@@ -20,10 +20,14 @@ router.get("/", async (req, res) => {
 });
 
 // Get single product
-router.get("/:id", async (req, res) => {
+router.get("/:slugOrId", async (req, res) => {
   try {
-    const product = await prisma.product.findUnique({
-      where: { id: parseInt(req.params.id) },
+    const isId = !isNaN(parseInt(req.params.slugOrId)) && /^\d+$/.test(req.params.slugOrId);
+
+    const product = await prisma.product.findFirst({
+      where: isId
+        ? { id: parseInt(req.params.slugOrId) }
+        : { slug: req.params.slugOrId },
       include: { category: true },
     });
 

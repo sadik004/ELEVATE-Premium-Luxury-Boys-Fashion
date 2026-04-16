@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { api } from "@/lib/api";
+import Image from "next/image";
+import { api, BASE_URL } from "@/lib/api";
 import { useCartStore } from "@/lib/cartStore";
 import styles from "./page.module.css";
 
@@ -14,7 +15,7 @@ export default function ProductDetail({ params }) {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const data = await api.get(`/products/${unwrappedParams.id}`);
+        const data = await api.get(`/products/${unwrappedParams.slug}`);
         setProduct(data);
       } catch (error) {
         console.error("Failed to load product", error);
@@ -23,7 +24,7 @@ export default function ProductDetail({ params }) {
       }
     }
     fetchProduct();
-  }, [unwrappedParams.id]);
+  }, [unwrappedParams.slug]);
 
   if (loading) return <div className={styles.loading}>Loading...</div>;
   if (!product) return <div className={styles.loading}>Product not found.</div>;
@@ -31,7 +32,14 @@ export default function ProductDetail({ params }) {
   return (
     <div className={styles.detailContainer}>
       <div className={styles.imageSection}>
-        <div className={styles.imagePlaceholder}>Product Image</div>
+        <div className={styles.imagePlaceholder}>
+          <Image
+            src={product.image.startsWith("http") ? product.image : `${BASE_URL}${product.image}`}
+            alt={product.name}
+            fill
+            style={{ objectFit: "cover" }}
+          />
+        </div>
       </div>
       <div className={styles.infoSection}>
         <h4 className={styles.category}>{product.category?.name}</h4>
