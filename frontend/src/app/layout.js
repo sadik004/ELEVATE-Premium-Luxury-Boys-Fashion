@@ -14,10 +14,13 @@ export const metadata = {
   description: "Ultra-premium e-commerce platform for luxury boys fashion.",
 };
 
+import AuthHydrator from "@/components/AuthHydrator";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable}`}>
+        <AuthHydrator />
         <Header />
         <main>{children}</main>
         <Footer />
