@@ -46,11 +46,34 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <Link href="/forgot-password" className={styles.forgotPassword}>
+              Forgot Password?
+            </Link>
           </div>
           <button type="submit" className={styles.submitBtn}>
             Sign In
           </button>
         </form>
+
+        <div className={styles.socialContainer}>
+          <button
+            type="button"
+            className={styles.socialBtn}
+            onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/google`}
+          >
+            <img src="/google-icon.svg" alt="Google" className={styles.socialIcon} />
+            Continue with Google
+          </button>
+          <button
+            type="button"
+            className={styles.socialBtn}
+            onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/facebook`}
+          >
+            <img src="/facebook-icon.svg" alt="Facebook" className={styles.socialIcon} />
+            Continue with Facebook
+          </button>
+        </div>
+
         <p className={styles.linkText}>
           Don't have an account? <Link href="/register">Register</Link>
         </p>

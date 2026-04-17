@@ -14,12 +14,21 @@ export const useAuthStore = create(
       },
 
       register: async (name, email, password) => {
-        const data = await api.post("/auth/register", {
+        await api.post("/auth/register", {
           name,
           email,
           password,
         });
+        // We do not set the token/user here anymore; they must verify OTP first.
+      },
+
+      verifyOtp: async (email, otpCode) => {
+        const data = await api.post("/auth/verify-otp", { email, otpCode });
         set({ token: data.token, user: data.user });
+      },
+
+      setToken: (token) => {
+        set({ token });
       },
 
       fetchProfile: async () => {
