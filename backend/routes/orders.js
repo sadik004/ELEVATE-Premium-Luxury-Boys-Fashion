@@ -10,7 +10,7 @@ router.post("/", auth, async (req, res) => {
 
     const order = await prisma.order.create({
       data: {
-        userId: req.user.userId,
+        userId: req.user.id,
         total,
         status: "PENDING",
         items: {
@@ -36,7 +36,7 @@ router.post("/", auth, async (req, res) => {
 router.get("/", auth, async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
-      where: { userId: req.user.userId },
+      where: { userId: req.user.id },
       include: {
         items: {
           include: {

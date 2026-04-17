@@ -1,0 +1,111 @@
+.container {
+  padding: 4rem 5%;
+  min-height: 80vh;
+}
+
+.title {
+  font-family: var(--font-playfair);
+  color: var(--gold-accent);
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  margin-top: 4rem;
+}
+
+.ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.orderCard {
+  background: rgba(10, 10, 10, 0.8);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: 4px;
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.orderHeader h3 {
+  color: var(--gold-accent);
+  font-family: var(--font-playfair);
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.date {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.statusBadge {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--gold-accent);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--gold-accent);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-primary);
+}
+
+.itemInfo {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.itemName {
+  font-size: 1rem;
+}
+
+.itemQty {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.itemPrice {
+  font-family: var(--font-inter);
+}
+
+.orderTotal {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(212, 175, 55, 0.3);
+  padding-top: 1rem;
+  font-size: 1.25rem;
+  color: var(--gold-accent);
+  font-family: var(--font-playfair);
+}
