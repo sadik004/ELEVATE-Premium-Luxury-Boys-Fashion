@@ -4,7 +4,9 @@
 
 ## Overview
 
-ELEVATE is a full-stack luxury e-commerce platform dedicated to high-end boys' fashion. Designed with a focus on an ultra-premium dark aesthetic, the application features an engaging, interactive 3D frontend powered by React Three Fiber and GSAP animations. The backend is a robust RESTful API built on Express.js and Prisma ORM, providing scalable and reliable data management for products, categories, orders, and user authentication.
+ELEVATE is a full-stack luxury e-commerce platform dedicated to high-end boys' fashion. Designed with a focus on an ultra-premium dark aesthetic, the application features an engaging, interactive 3D frontend powered by React Three Fiber and GSAP animations.
+
+The backend has recently been modernized to a **FastAPI** architecture to provide superior performance, asynchronous operations, and Redis caching. A legacy **Express.js** backend is also maintained as a fallback.
 
 ## Tech Stack
 
@@ -15,10 +17,18 @@ ELEVATE is a full-stack luxury e-commerce platform dedicated to high-end boys' f
 - **State Management:** Zustand
 - **Styling:** CSS Modules (Tailwind CSS is explicitly avoided)
 
-### Backend
+### Primary Backend (FastAPI)
+- **Framework:** FastAPI (Python)
+- **Server:** Uvicorn
+- **ORM:** SQLAlchemy (with Asyncpg) & Alembic for migrations
+- **Caching:** Redis (redis.asyncio) & fastapi-cache2
+- **Database:** PostgreSQL
+- **Authentication:** JWT (PyJWT), Passlib (bcrypt)
+
+### Legacy Fallback Backend (Express.js)
 - **Framework:** Express.js (Node.js)
 - **ORM:** Prisma
-- **Database:** PostgreSQL (Primary Production), SQLite (Local Development/Testing)
+- **Database:** PostgreSQL / SQLite
 - **Authentication:** JWT (jsonwebtoken) and bcryptjs
 
 ## Project Architecture
@@ -26,76 +36,61 @@ ELEVATE is a full-stack luxury e-commerce platform dedicated to high-end boys' f
 ### Folder Structure
 ```text
 .
-├── backend/                   # Express.js REST API
-│   ├── middleware/            # Express middlewares (e.g., Auth)
+├── backend-fastapi/           # Primary FastAPI REST API
+│   ├── alembic/               # Database migrations
+│   ├── app/                   # API core, routes, schemas, crud, models
+│   ├── tests/                 # Pytest test suite
+│   ├── requirements.txt       # Python dependencies
+│   └── seed.py                # Database seed script
+├── backend/                   # Legacy Express.js REST API (Fallback)
 │   ├── prisma/                # Prisma schema and seed scripts
 │   ├── routes/                # API route definitions
 │   └── server.js              # Entry point for backend
 └── frontend/                  # Next.js Application
     ├── src/                   # React components, pages, and hooks
-    ├── next.config.mjs        # Next.js configuration (redirects, image domains)
+    ├── next.config.mjs        # Next.js configuration
     └── package.json           # Frontend dependencies
-```
-
-### High-Level Architecture Flowchart
-
-```mermaid
-flowchart TD
-    subgraph Frontend["Frontend (Next.js 15 / React)"]
-        UI["UI Components & 3D Canvas"]
-        State["Zustand (State Management)"]
-        UI <--> State
-    end
-
-    subgraph Backend["Backend (Express.js)"]
-        API["REST API Routes\n(Products, Orders, Auth)"]
-        Auth["JWT Authentication"]
-        Prisma["Prisma ORM"]
-        API <--> Auth
-        API <--> Prisma
-    end
-
-    subgraph Database["Database"]
-        PostgreSQL[("PostgreSQL\n(Production)")]
-        SQLite[("SQLite\n(Dev/Test)")]
-    end
-
-    UI -- "HTTP/REST\n(JSON)" --> API
-    Prisma -. "Data Access" .-> PostgreSQL
-    Prisma -. "Data Access" .-> SQLite
 ```
 
 ## Setup Instructions
 
 ### Prerequisites
+- Python 3.10+
 - Node.js (v18+ recommended)
+- PostgreSQL
+- Redis Server
 - npm
 
-### Backend Setup
-1. Navigate to the backend directory:
+### 1. Primary Backend Setup (FastAPI)
+1. Navigate to the modern backend directory:
    ```bash
-   cd backend
+   cd backend-fastapi
    ```
-2. Install dependencies:
+2. Create and activate a Python virtual environment:
    ```bash
-   npm install
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-3. Copy the environment file:
+3. Install dependencies:
    ```bash
-   cp .env.example .env
+   pip install -r requirements.txt
    ```
-4. Setup the database and seed data:
+4. Configure the environment variables by creating a `.env` file based on your local setup (requires `DATABASE_URL` and `REDIS_URL`).
+5. Run database migrations:
    ```bash
-   npx prisma db push
-   npm run seed
+   alembic upgrade head
    ```
-5. Start the backend server:
+6. Seed the database:
    ```bash
-   npm run dev
+   python seed.py
    ```
-   *(Runs on http://localhost:5000)*
+7. Start the FastAPI server:
+   ```bash
+   uvicorn app.main:app --reload --port 5000
+   ```
+   *(Runs on http://localhost:5000. API docs available at http://localhost:5000/docs)*
 
-### Frontend Setup
+### 2. Frontend Setup
 1. Navigate to the frontend directory:
    ```bash
    cd frontend
@@ -110,9 +105,42 @@ flowchart TD
    ```
    *(Runs on http://localhost:3000)*
 
+### 3. Legacy Backend Setup (Express.js - Fallback Only)
+1. Navigate to the legacy backend directory:
+   ```bash
+   cd backend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy the environment file and configure it:
+   ```bash
+   cp .env.example .env
+   ```
+4. Setup the database and seed data:
+   ```bash
+   npx prisma db push
+   npm run seed
+   ```
+5. Start the backend server:
+   ```bash
+   npm run dev
+   ```
+   *(Runs on http://localhost:5000)*
+
+## Testing
+
+To run the automated tests for the primary FastAPI backend:
+```bash
+cd backend-fastapi
+source venv/bin/activate
+PYTHONPATH=. pytest
+```
+
 ## Features
 - **3D Hero Section:** Implemented using Three.js and React Three Fiber to deliver an engaging, immersive visual experience.
 - **Animations:** High-performance scroll animations powered by GSAP and ScrollTrigger.
 - **Authentication:** Secure JWT-based user authentication system.
 - **Cart Management:** Global state management for an intuitive shopping experience using Zustand.
-- **Dynamic Content:** Products and categories are dynamically loaded via the REST API and seeded using idempotent Prisma scripts.
+- **High-Performance API:** The backend utilizes Redis caching on read-heavy routes to drastically reduce API latency.
