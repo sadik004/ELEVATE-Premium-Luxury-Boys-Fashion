@@ -1,0 +1,1 @@
+fastapi\nuvicorn\nsqlalchemy\nalembic\nasyncpg\npsycopg2-binary\npydantic[email]\npasslib[bcrypt]\npyjwt\npython-dotenv\nredis\nfastapi-cache2[redis]
