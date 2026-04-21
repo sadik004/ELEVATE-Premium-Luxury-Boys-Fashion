@@ -18,10 +18,26 @@ export default function Cart() {
     }
 
     try {
-      await api.post("/orders", { items, total });
+      // 1. Create the order
+      const orderResponse = await api.post("/orders", { items, total });
+      const order = orderResponse.data;
+
+      // 2. Initiate payment with the new order ID
+      const paymentResponse = await api.post("/payment/initiate", {
+        order_id: order.id,
+        total_amount: total
+      });
+
+      // Clear cart locally since order is placed
       clearCart();
-      alert("Order placed successfully!");
-      router.push("/shop");
+
+      // 3. Redirect to SSLCommerz Gateway
+      const gatewayUrl = paymentResponse.data.GatewayPageURL;
+      if (gatewayUrl) {
+        window.location.href = gatewayUrl;
+      } else {
+        alert("Payment gateway URL not found.");
+      }
     } catch (error) {
       console.error("Checkout failed", error);
       alert("Checkout failed.");
