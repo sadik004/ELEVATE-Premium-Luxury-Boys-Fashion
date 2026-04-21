@@ -60,6 +60,7 @@ class Order(Base):
     status = Column(String, default="PENDING")
 
     items = relationship("OrderItem", back_populates="order")
+    payment = relationship("Payment", back_populates="order", uselist=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -77,3 +78,19 @@ class OrderItem(Base):
 
     quantity = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
+
+
+class Payment(Base):
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
+    order = relationship("Order", back_populates="payment")
+
+    trx_id = Column(String(100))
+    val_id = Column(String(100))
+    amount = Column(Float, nullable=False)
+    status = Column(String(20), default="PENDING")
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
