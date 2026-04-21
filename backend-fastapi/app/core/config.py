@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     # CORS
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # SSLCommerz
+    SSLCOMMERZ_STORE_ID: str = "testbox"
+    SSLCOMMERZ_STORE_PASSWORD: str = "testpass"
+
     class Config:
         env_file = ".env"
 
