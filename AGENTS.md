@@ -2,26 +2,32 @@
 
 This document outlines strict coding standards, technology stack layers, and common pitfalls to ensure consistent, secure, and accurate development on the ELEVATE e-commerce platform. AI agents MUST read and strictly adhere to these guidelines.
 
-## 1. Tech Layers
+## 1. Architecture Boundaries & Tech Layers
+
+### Architectural Boundaries
+- **Frontend handles Auth and UI**: The Next.js frontend is strictly responsible for managing user interfaces, state management (Zustand), and authentication flow (via NextAuth and PrismaAdapter).
+- **Backend handles Core Logic, Products, and Payments**: The FastAPI backend serves as the source of truth for business logic, product data, payment processing (e.g. SSLCommerz), and caching.
 
 ### Frontend
 - **Framework:** Next.js 15 (App Router)
 - **Language:** TypeScript/JavaScript (React 19)
-- **Styling:** CSS Modules ONLY. **Do NOT use Tailwind CSS.**
+- **Styling:** Tailwind CSS (configured natively via postcss and autoprefixer).
 - **3D & Animation:** @react-three/fiber, @react-three/drei, GSAP (ScrollTrigger plugin).
 - **State Management:** Zustand.
+- **Auth:** NextAuth using the PrismaAdapter.
 
-### Primary Backend (FastAPI)
+### Core Backend (FastAPI)
 - **Framework:** FastAPI (Python)
 - **ORM:** SQLAlchemy (with Asyncpg), Alembic for migrations
-- **Databases:** PostgreSQL
+- **Databases:** PostgreSQL (Neon)
 - **Caching:** Redis (`redis.asyncio` and `fastapi-cache2`)
-- **Authentication:** PyJWT, Passlib (bcrypt)
+- **Payments:** SSLCommerz Integration
+- **Authentication Services:** Clean JWT using PyJWT, Passlib (bcrypt)
 
 ### Legacy Backend (Express.js - Fallback)
 - **Framework:** Express.js (Node.js)
 - **ORM:** Prisma
-- **Databases:** PostgreSQL (Production), SQLite (Local Dev/Testing)
+- **Databases:** PostgreSQL
 - **Authentication:** JWT (`jsonwebtoken`) and `bcryptjs`.
 
 ## 2. Project Structure
@@ -54,12 +60,11 @@ This document outlines strict coding standards, technology stack layers, and com
 - **FastAPI Caching:** Always implement Redis caching on read-heavy endpoints (e.g., `/products`, `/categories`) using the `@cache()` decorator from `fastapi-cache2` to drastically reduce page load latency.
 - **FastAPI Async:** All I/O bound operations in the FastAPI backend must strictly use `async def` for performance.
 - **Database Seeding:** All seed scripts MUST be idempotent. Do not assign auto-increment IDs manually.
-- **Foreign Key Constraints:** When performing a complete database reset during seeding, strictly manage deletion order (e.g., clear dependent child records like `OrderItem` before parent records like `Product`).
+- **Foreign Key Constraints:** When performing a complete database reset during seeding, strictly manage deletion order.
 - **Safe Fallbacks:** API routes must gracefully handle database errors. Do not throw 500 errors; instead, return empty arrays `[]` for lists or 404 for single items.
-- Do not modify backend code or configuration when tasks are strictly constrained to frontend modifications.
 
 ### C. Frontend
-- **Styling:** ALWAYS use CSS Modules. Tailwind is prohibited.
+- **Styling:** ALWAYS use Tailwind CSS.
 - **Routing & Redirects:** Next.js permanent routing redirects MUST be configured in `next.config.mjs` using `async redirects()`.
 - **Image Optimization:** Next.js `<Image />` components must use `fill` and `style={{ objectFit: 'cover' }}`. Their `src` must be dynamically constructed via `NEXT_PUBLIC_API_URL`. Ensure `next.config.mjs` allows the necessary `remotePatterns`.
 - **API Fetching:** Include robust try-catch blocks with explicit console logging to identify Network, CORS, or 500 errors when data fetching fails.
