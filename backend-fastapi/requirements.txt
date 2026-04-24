@@ -1,19 +1,31 @@
-fastapi>=0.100.0
+# FastAPI runtime
+fastapi
 uvicorn
+
+# Database, ORM, and migrations
 sqlalchemy
 alembic
 asyncpg
 greenlet
 psycopg2-binary
-pydantic[email]>=2.0
+
+# Settings and environment loading
+pydantic[email]
+pydantic-settings
+python-dotenv
+
+# Backend authentication
 passlib[bcrypt]
 pyjwt
-python-dotenv
+
+# Redis caching
 redis
-fastapi-cache2
+fastapi-cache2[redis]
+
+# SSLCommerz HTTP client and templating helpers
+httpx==0.27.0
+jinja2
+
+# Tests
 pytest
 pytest-asyncio
-httpx
-jinja2
-pydantic-settings
-httpx==0.27.0

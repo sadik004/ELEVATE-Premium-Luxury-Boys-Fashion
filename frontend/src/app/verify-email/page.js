@@ -10,6 +10,7 @@ function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
+  const name = searchParams.get("name");
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -30,6 +31,7 @@ function VerifyEmailContent() {
     try {
       const result = await signIn("credentials", {
         email,
+        name,
         otp,
         redirect: false,
         callbackUrl: "/cart",
@@ -58,7 +60,7 @@ function VerifyEmailContent() {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, name, purpose: "signup" }),
       });
 
       const data = await res.json();
@@ -67,7 +69,7 @@ function VerifyEmailContent() {
         throw new Error(data.error || "Failed to resend code");
       }
 
-      toast.success("New code sent! Check your email.", { id: resendToast });
+      toast.success(data.message || "New code sent! Check your email.", { id: resendToast });
     } catch (err) {
       toast.error(err.message, { id: resendToast });
     } finally {

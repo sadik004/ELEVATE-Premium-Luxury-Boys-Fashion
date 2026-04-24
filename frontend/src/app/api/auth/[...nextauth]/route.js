@@ -18,17 +18,20 @@ export const authOptions = {
       name: "OTP",
       credentials: {
         email: { label: "Email", type: "email" },
-        otp: { label: "OTP", type: "text" }
+        otp: { label: "OTP", type: "text" },
+        name: { label: "Name", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.otp) {
           throw new Error("Email and OTP are required");
         }
 
+        const email = credentials.email.trim().toLowerCase();
+
         // 1. Find OTP by email
         // Sort by creation date descending to get the most recent one
         const otpRecord = await prisma.oTP.findFirst({
-          where: { email: credentials.email },
+          where: { email },
           orderBy: { createdAt: 'desc' }
         });
 
@@ -57,15 +60,21 @@ export const authOptions = {
 
         // 4. Find or create user by email
         let user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email }
         });
 
         if (!user) {
           user = await prisma.user.create({
             data: {
-              email: credentials.email,
+              email,
+              name: credentials.name || null,
               emailVerified: new Date(),
             }
+          });
+        } else if (!user.name && credentials.name) {
+          user = await prisma.user.update({
+            where: { id: user.id },
+            data: { name: credentials.name },
           });
         }
 

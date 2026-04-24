@@ -1,0 +1,92 @@
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1593030761757-71fae45fa0e5?q=80&w=2000&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1550614000-4b95f22fcc22?q=80&w=1000&auto=format&fit=crop 404
+[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_URL`
+[Upstash Redis] Unable to find environment variable: `UPSTASH_REDIS_REST_TOKEN`
+[Upstash Redis] The 'url' property is missing or undefined in your Redis config.
+[Upstash Redis] The 'token' property is missing or undefined in your Redis config.
+Error in send-otp route: Error [PrismaClientInitializationError]: 
+Invalid `prisma.oTP.create()` invocation:
+
+
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   | 
+ 6 |   provider = "postgresql"
+ 7 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:7)
+    at async POST (src\app\api\auth\send-otp\route.js:52:5)
+  50 |     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  51 |
+> 52 |     await prisma.oTP.create({
+     |     ^
+  53 |       data: {
+  54 |         email,
+  55 |         otp, {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1550614000-4b95f22fcc22?q=80&w=1000&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1593030761757-71fae45fa0e5?q=80&w=2000&auto=format&fit=crop 404
+Error in send-otp route: Error [PrismaClientInitializationError]: 
+Invalid `prisma.oTP.create()` invocation:
+
+
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   | 
+ 6 |   provider = "postgresql"
+ 7 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:7)
+    at async POST (src\app\api\auth\send-otp\route.js:52:5)
+  50 |     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  51 |
+> 52 |     await prisma.oTP.create({
+     |     ^
+  53 |       data: {
+  54 |         email,
+  55 |         otp, {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'E:\ELEVATE-Premium-Luxury-Boys-Fashion\frontend\.next\cache\webpack\server-development\7.pack.gz_' -> 'E:\ELEVATE-Premium-Luxury-Boys-Fashion\frontend\.next\cache\webpack\server-development\7.pack.gz'
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack failed from E:\ELEVATE-Premium-Luxury-Boys-Fashion\frontend\.next\cache\webpack\client-development.pack.gz: Error: invalid code lengths set
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1593030761757-71fae45fa0e5?q=80&w=1000&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1550614000-4b95f22fcc22?q=80&w=2000&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1593030761757-71fae45fa0e5?q=80&w=1000&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1550614000-4b95f22fcc22?q=80&w=2000&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1594938298596-033285741630?q=80&w=2940&auto=format&fit=crop 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1593030761757-71fae45fa0e5?q=80&w=2000&auto=format&fit=crop 404
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'E:\ELEVATE-Premium-Luxury-Boys-Fashion\frontend\.next\cache\webpack\client-development\2.pack.gz_' -> 'E:\ELEVATE-Premium-Luxury-Boys-Fashion\frontend\.next\cache\webpack\client-development\2.pack.gz'
+ ⨯ [Error: UNKNOWN: unknown error, open 'E:\ELEVATE-Premium-Luxury-Boys-Fashion\frontend\.next\server\app\login\page.js'] {
+  errno: -4094,
+  code: 'UNKNOWN',
+  syscall: 'open',
+  path: 'E:\\ELEVATE-Premium-Luxury-Boys-Fashion\\frontend\\.next\\server\\app\\login\\page.js'
+}
+[Error: UNKNOWN: unknown error, open 'E:\ELEVATE-Premium-Luxury-Boys-Fashion\frontend\.next\server\app\login\page.js'] {
+  errno: -4094,
+  code: 'UNKNOWN',
+  syscall: 'open',
+  path: 'E:\\ELEVATE-Premium-Luxury-Boys-Fashion\\frontend\\.next\\server\\app\\login\\page.js'
+}
+[Error: UNKNOWN: unknown error, open 'E:\ELEVATE-Premium-Luxury-Boys-Fashion\frontend\.next\server\app\login\page.js'] {
+  errno: -4094,
+  code: 'UNKNOWN',
+  syscall: 'open',
+  path: 'E:\\ELEVATE-Premium-Luxury-Boys-Fashion\\frontend\\.next\\server\\app\\login\\page.js'
+}
+^C
