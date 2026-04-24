@@ -2,9 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -14,15 +12,35 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
     EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
+      server: process.env.EMAIL_SERVER,
       from: process.env.EMAIL_FROM,
+      maxAge: 24 * 60 * 60, // 24 hours - aligns with QStash retry window
+      async sendVerificationRequest({ identifier, url, provider }) {
+        if (!process.env.QSTASH_TOKEN) {
+          console.warn("Missing QSTASH_TOKEN - Webhook queue bypassed.");
+          return;
+        }
+
+        const { Client } = await import("@upstash/qstash");
+        const qstashClient = new Client({ token: process.env.QSTASH_TOKEN });
+
+        // Ensure we route to production Vercel URL if available, else localhost
+        const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+          ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+          : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+        await qstashClient.publishJSON({
+          url: `${baseUrl}/api/webhooks/email`,
+          body: {
+            email: identifier,
+            url: url,
+          },
+          retries: 3,
+          headers: {
+            "Upstash-Delay": "2s",
+          }
+        });
+      }
     }),
   ],
   session: {
