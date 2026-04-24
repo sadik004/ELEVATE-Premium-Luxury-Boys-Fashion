@@ -12,48 +12,50 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
     EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-        secure: Number(process.env.EMAIL_SERVER_PORT) === 465, // Enforce SSL for port 465
-      },
-      from: process.env.EMAIL_FROM,
-      // Debug callback if email fails to send in production
-      sendVerificationRequest: async (params) => {
-        const { identifier, url, provider, theme } = params;
-        const { host } = new URL(url);
-
+      id: "resend",
+      type: "email",
+      sendVerificationRequest: async ({ identifier, url }) => {
         try {
-          // Dynamic import of nodemailer to avoid bundling issues
-          const nodemailer = await import("nodemailer");
+          // 🌐 Dynamic Routing: Route correctly based on preview vs production
+          const targetDomain = process.env.VERCEL_ENV === 'production'
+            ? process.env.NEXTAUTH_URL
+            : `https://${process.env.VERCEL_BRANCH_URL}`;
 
-          const transport = nodemailer.createTransport(provider.server);
-          const result = await transport.sendMail({
-            to: identifier,
-            from: provider.from,
-            subject: `Sign in to ${host}`,
-            text: `Sign in to ${host}\n${url}\n\n`,
-            html: `
-              <body style="background: #0a0a0a; color: #fff; font-family: sans-serif; padding: 20px;">
-                <h1 style="color: #D4AF37;">Welcome to Elevate</h1>
-                <p>Click the secure link below to sign in:</p>
-                <a href="${url}" style="background: #D4AF37; color: #0a0a0a; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 4px;">Sign In</a>
-                <p style="color: #666; font-size: 12px; margin-top: 20px;">If you did not request this email you can safely ignore it.</p>
-              </body>
-            `,
+          const webhookUrl = `${targetDomain}/api/webhooks/email`;
+
+          // 🔁 Ingestion-Level Deduplication: sha256(identifier + time_window_10s)
+          const timeWindow = Math.floor(Date.now() / 10000); // 10 second rolling window
+          const dedupString = `${identifier}-${timeWindow}`;
+          const dedupId = crypto.createHash('sha256').update(dedupString).digest('hex');
+
+          // 🧠 Distributed Tracing: Generate a trace ID
+          const traceId = crypto.randomUUID();
+
+          console.log(`[Trace: ${traceId}] Queuing magic link for ${identifier}`);
+
+          const response = await fetch(`https://qstash.upstash.io/v2/publish/${webhookUrl}`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${process.env.QSTASH_TOKEN || ''}`,
+              "Content-Type": "application/json",
+              "Upstash-Delay": "2s",
+              "Upstash-Retries": "3",
+              "Upstash-Retry-Delay": "5s",
+              "Upstash-Deduplication-Id": dedupId,
+              // 🚨 DLQ Handling: If retries exhaust, QStash will forward payload to this DLQ endpoint
+              "Upstash-Failure-Callback": `${targetDomain}/api/webhooks/dlq`,
+            },
+            body: JSON.stringify({ identifier, url, traceId }),
           });
 
-          const failed = result.rejected.concat(result.pending).filter(Boolean);
-          if (failed.length) {
-            throw new Error(`Email(s) (${failed.join(", ")}) could not be sent`);
+          if (!response.ok) {
+            const errorData = await response.text();
+            console.error(`[Trace: ${traceId}] QSTASH_PUBLISH_FAILED:`, response.status, errorData);
+            throw new Error("Failed to queue verification email.");
           }
         } catch (error) {
-          console.error("SEND_VERIFICATION_EMAIL_ERROR", error);
-          throw new Error("Failed to send verification email. Please try again or use Google sign in.");
+          console.error("SEND_VERIFICATION_REQUEST_ERROR", error);
+          throw new Error("Email delivery service unavailable.");
         }
       }
     }),
@@ -62,8 +64,8 @@ export const authOptions = {
     strategy: "jwt",
   },
   pages: {
-    signIn: '/login', // Explicitly define custom sign in page
-    error: '/login',  // Redirect auth errors back to login to display to user
+    signIn: '/login',
+    error: '/login',
   },
   callbacks: {
     async session({ session, token }) {
