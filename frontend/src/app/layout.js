@@ -15,6 +15,7 @@ export const metadata = {
 };
 
 import AuthHydrator from "@/components/AuthHydrator";
+import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({ children }) {
   return (
@@ -24,6 +25,22 @@ export default function RootLayout({ children }) {
         <Header />
         <main>{children}</main>
         <Footer />
+        <Toaster
+          position="bottom-center"
+          toastOptions={{
+            style: {
+              background: '#0a0a0a',
+              color: '#fff',
+              border: '1px solid rgba(212, 175, 55, 0.2)',
+            },
+            success: {
+              iconTheme: {
+                primary: '#D4AF37',
+                secondary: '#0a0a0a',
+              },
+            },
+          }}
+        />
       </body>
     </html>
   );

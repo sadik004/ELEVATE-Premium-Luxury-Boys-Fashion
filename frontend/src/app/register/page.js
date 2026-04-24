@@ -1,88 +1,149 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthStore } from "@/lib/authStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import styles from "../login/page.module.css";
+import { toast } from "react-hot-toast";
+import { Mail, User, Loader2, ArrowRight } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const register = useAuthStore((state) => state.register);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSendOtp = async (e) => {
     e.preventDefault();
+
+    if (!name || !email) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    setIsLoading(true);
+    const registerToast = toast.loading("Setting up your account...");
+
     try {
-      await register(name, email, password);
+      // 1. Create the base user in the backend
+      // (Assuming /auth/register creates user but doesn't log them in fully if OTP is required next)
+      // Note: We modified auth logic earlier so that we just send OTP.
+      // NextAuth Credentials Provider handles creating the user on verify.
+
+      // We will just send the OTP here, and verify it on the next page.
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send verification code");
+      }
+
+      toast.success("Verification code sent!", { id: registerToast });
+
+      // Redirect to verification page with email pre-filled
       router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
-      setError(err.message || "Registration failed");
+      toast.error(err.message, { id: registerToast });
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleOAuthSignIn = (provider) => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    window.location.href = `${baseUrl}/api/auth/${provider}`;
+  };
+
   return (
-    <div className={styles.authContainer}>
-      <div className={styles.authBox}>
-        <h1 className={styles.title}>Register</h1>
-        {error && <p className={styles.error}>{error}</p>}
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label>Name</label>
+    <div className="min-h-[80vh] flex items-center justify-center p-6 bg-luxury-black">
+      <div className="w-full max-w-md bg-glass-bg border border-glass-border p-10 backdrop-blur-md rounded-sm shadow-2xl relative overflow-hidden">
+
+        {/* Decorative corner accents */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-luxury-gold opacity-50"></div>
+        <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-luxury-gold opacity-50"></div>
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-luxury-gold opacity-50"></div>
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-luxury-gold opacity-50"></div>
+
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-serif text-luxury-gold mb-2">Join Elevate</h1>
+          <p className="text-text-secondary text-sm uppercase tracking-widest">Create your premium account</p>
+        </div>
+
+        <form onSubmit={handleSendOtp} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-text-secondary uppercase tracking-widest flex items-center gap-2">
+              <User size={14} /> Full Name
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full p-4 bg-white/5 border border-white/10 text-white font-sans focus:outline-none focus:border-luxury-gold transition-colors"
               required
+              disabled={isLoading}
             />
           </div>
-          <div className={styles.inputGroup}>
-            <label>Email</label>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-text-secondary uppercase tracking-widest flex items-center gap-2">
+              <Mail size={14} /> Email Address
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="w-full p-4 bg-white/5 border border-white/10 text-white font-sans focus:outline-none focus:border-luxury-gold transition-colors"
               required
+              disabled={isLoading}
             />
           </div>
-          <div className={styles.inputGroup}>
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className={styles.submitBtn}>
-            Create Account
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="mt-2 w-full p-4 bg-luxury-gold text-luxury-black font-semibold uppercase tracking-widest hover:bg-white transition-colors flex justify-center items-center gap-2"
+          >
+            {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Send Verification Code"}
+            {!isLoading && <ArrowRight size={18} />}
           </button>
         </form>
 
-        <div className={styles.socialContainer}>
-          <button
-            type="button"
-            className={styles.socialBtn}
-            onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/google`}
-          >
-            <img src="/google-icon.svg" alt="Google" className={styles.socialIcon} />
-            Continue with Google
-          </button>
-          <button
-            type="button"
-            className={styles.socialBtn}
-            onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/facebook`}
-          >
-            <img src="/facebook-icon.svg" alt="Facebook" className={styles.socialIcon} />
-            Continue with Facebook
-          </button>
+        <div className="mt-8 flex flex-col gap-4">
+          <div className="relative flex py-2 items-center">
+            <div className="flex-grow border-t border-glass-border"></div>
+            <span className="flex-shrink-0 mx-4 text-text-secondary text-xs uppercase tracking-widest">Or</span>
+            <div className="flex-grow border-t border-glass-border"></div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('google')}
+              className="w-full flex items-center justify-center gap-3 p-4 border border-glass-border bg-transparent text-white font-sans hover:bg-white/5 hover:border-luxury-gold transition-colors"
+            >
+              <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
+              Continue with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('facebook')}
+              className="w-full flex items-center justify-center gap-3 p-4 border border-glass-border bg-transparent text-white font-sans hover:bg-white/5 hover:border-luxury-gold transition-colors"
+            >
+              <img src="/facebook-icon.svg" alt="Facebook" className="w-5 h-5" />
+              Continue with Facebook
+            </button>
+          </div>
         </div>
 
-        <p className={styles.linkText}>
-          Already have an account? <Link href="/login">Sign In</Link>
+        <p className="mt-8 text-center text-sm text-text-secondary">
+          Already have an account? <Link href="/login" className="text-luxury-gold hover:underline underline-offset-4 transition-all">Sign In</Link>
         </p>
       </div>
     </div>
