@@ -12,39 +12,58 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
     EmailProvider({
-      server: process.env.EMAIL_SERVER,
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: Number(process.env.EMAIL_SERVER_PORT),
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
+        secure: Number(process.env.EMAIL_SERVER_PORT) === 465, // Enforce SSL for port 465
+      },
       from: process.env.EMAIL_FROM,
-      maxAge: 24 * 60 * 60, // 24 hours - aligns with QStash retry window
-      async sendVerificationRequest({ identifier, url, provider }) {
-        if (!process.env.QSTASH_TOKEN) {
-          console.warn("Missing QSTASH_TOKEN - Webhook queue bypassed.");
-          return;
-        }
+      // Debug callback if email fails to send in production
+      sendVerificationRequest: async (params) => {
+        const { identifier, url, provider, theme } = params;
+        const { host } = new URL(url);
 
-        const { Client } = await import("@upstash/qstash");
-        const qstashClient = new Client({ token: process.env.QSTASH_TOKEN });
+        try {
+          // Dynamic import of nodemailer to avoid bundling issues
+          const nodemailer = await import("nodemailer");
 
-        // Ensure we route to production Vercel URL if available, else localhost
-        const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-          ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-          : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+          const transport = nodemailer.createTransport(provider.server);
+          const result = await transport.sendMail({
+            to: identifier,
+            from: provider.from,
+            subject: `Sign in to ${host}`,
+            text: `Sign in to ${host}\n${url}\n\n`,
+            html: `
+              <body style="background: #0a0a0a; color: #fff; font-family: sans-serif; padding: 20px;">
+                <h1 style="color: #D4AF37;">Welcome to Elevate</h1>
+                <p>Click the secure link below to sign in:</p>
+                <a href="${url}" style="background: #D4AF37; color: #0a0a0a; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 4px;">Sign In</a>
+                <p style="color: #666; font-size: 12px; margin-top: 20px;">If you did not request this email you can safely ignore it.</p>
+              </body>
+            `,
+          });
 
-        await qstashClient.publishJSON({
-          url: `${baseUrl}/api/webhooks/email`,
-          body: {
-            email: identifier,
-            url: url,
-          },
-          retries: 3,
-          headers: {
-            "Upstash-Delay": "2s",
+          const failed = result.rejected.concat(result.pending).filter(Boolean);
+          if (failed.length) {
+            throw new Error(`Email(s) (${failed.join(", ")}) could not be sent`);
           }
-        });
+        } catch (error) {
+          console.error("SEND_VERIFICATION_EMAIL_ERROR", error);
+          throw new Error("Failed to send verification email. Please try again or use Google sign in.");
+        }
       }
     }),
   ],
   session: {
     strategy: "jwt",
+  },
+  pages: {
+    signIn: '/login', // Explicitly define custom sign in page
+    error: '/login',  // Redirect auth errors back to login to display to user
   },
   callbacks: {
     async session({ session, token }) {
@@ -60,6 +79,7 @@ export const authOptions = {
       return token;
     },
   },
+  debug: process.env.NODE_ENV === 'development',
 };
 
 const handler = NextAuth(authOptions);
