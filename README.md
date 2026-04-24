@@ -67,6 +67,10 @@ A legacy **Express.js** backend is also maintained in the repository as a fallba
 - Redis Server
 - npm
 
+---
+
+## Backend Local Setup
+
 ### 1. Core Backend Setup (FastAPI)
 1. Navigate to the modern backend directory:
    ```bash
@@ -81,7 +85,7 @@ A legacy **Express.js** backend is also maintained in the repository as a fallba
    ```bash
    pip install -r requirements.txt
    ```
-4. Configure the environment variables by creating a `.env` file based on your local setup (requires `DATABASE_URL` and `REDIS_URL`).
+4. Configure the environment variables by creating a `.env` file based on your local setup. Ensure `DATABASE_URL` and `REDIS_URL` are defined.
 5. Run database migrations:
    ```bash
    alembic upgrade head
@@ -96,22 +100,7 @@ A legacy **Express.js** backend is also maintained in the repository as a fallba
    ```
    *(Runs on http://localhost:5000. API docs available at http://localhost:5000/docs)*
 
-### 2. Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies (requires legacy peer deps due to Next/React 19, Tailwind, & Three.js interactions):
-   ```bash
-   npm install --legacy-peer-deps
-   ```
-3. Start the frontend development server:
-   ```bash
-   npm run dev
-   ```
-   *(Runs on http://localhost:3000)*
-
-### 3. Legacy Backend Setup (Express.js - Fallback Only)
+### 2. Legacy Backend Setup (Express.js - Fallback Only)
 1. Navigate to the legacy backend directory:
    ```bash
    cd backend
@@ -120,20 +109,53 @@ A legacy **Express.js** backend is also maintained in the repository as a fallba
    ```bash
    npm install
    ```
-3. Copy the environment file and configure it:
+3. Configure the environment file:
    ```bash
    cp .env.example .env
    ```
-4. Setup the database and seed data:
+   Ensure you provide appropriate values in the newly created `.env` file.
+4. Prepare the database by generating the Prisma client and pushing the schema:
    ```bash
+   npx prisma generate
    npx prisma db push
+   ```
+5. Seed the database:
+   ```bash
    npm run seed
    ```
-5. Start the backend server:
+6. Start the backend server:
    ```bash
    npm run dev
    ```
    *(Runs on http://localhost:5000)*
+
+---
+
+## Frontend Local Setup
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Configure the environment variables by copying the example file:
+   ```bash
+   cp .env.example .env
+   ```
+   Update `.env` with your actual authentication, database, and email credentials.
+3. Install dependencies (requires legacy peer deps due to Next/React 19, Tailwind, & Three.js interactions):
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+4. Prepare the database and schema for NextAuth by generating the Prisma client and pushing changes:
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
+5. Start the frontend development server:
+   ```bash
+   npm run dev
+   ```
+   *(Runs on http://localhost:3000)*
 
 ## Testing
 
