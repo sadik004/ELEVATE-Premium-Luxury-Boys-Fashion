@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { api, BASE_URL } from "@/lib/api";
+import { api } from "@/lib/api";
+import { ProductCard } from "@/components/ui/ProductCard";
 import styles from "./page.module.css";
 
 export default function Shop() {
@@ -32,25 +31,7 @@ export default function Shop() {
       ) : (
         <div className={styles.grid}>
           {products.map((product) => (
-            <Link
-              href={`/product/${product.slug}`}
-              key={product.id}
-              className={styles.productCard}
-            >
-              <div className={styles.imagePlaceholder}>
-                <Image
-                  src={product.image.startsWith("http") ? product.image : `${BASE_URL}${product.image}`}
-                  alt={product.name}
-                  fill
-                  style={{ objectFit: "cover" }}
-                />
-              </div>
-              <div className={styles.productInfo}>
-                <h3>{product.name}</h3>
-                <p className={styles.description}>{product.description}</p>
-                <p className={styles.price}>${product.price.toFixed(2)}</p>
-              </div>
-            </Link>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}

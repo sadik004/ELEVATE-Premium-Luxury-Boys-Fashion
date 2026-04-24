@@ -57,24 +57,6 @@
   margin-bottom: 3rem;
 }
 
-.addBtn {
-  padding: 1rem 2rem;
-  background: var(--gold-accent);
-  color: var(--bg-color);
-  border: none;
-  font-family: var(--font-inter);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: max-content;
-}
-
-.addBtn:hover {
-  background: #fff;
-}
-
 .loading {
   text-align: center;
   padding: 5rem;

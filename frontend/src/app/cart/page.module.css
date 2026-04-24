@@ -90,24 +90,6 @@
   font-weight: 600;
 }
 
-.checkoutBtn {
-  width: 100%;
-  padding: 1rem;
-  background: var(--gold-accent);
-  color: var(--bg-color);
-  border: none;
-  font-family: var(--font-inter);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.checkoutBtn:hover {
-  background: #fff;
-}
-
 @media (max-width: 768px) {
   .cartContent {
     flex-direction: column;

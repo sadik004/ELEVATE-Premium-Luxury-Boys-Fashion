@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { Mail, User, Loader2, ArrowRight } from "lucide-react";
-import { api } from "@/lib/api";
+import { signIn } from "next-auth/react";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -25,12 +25,6 @@ export default function Register() {
     const registerToast = toast.loading("Setting up your account...");
 
     try {
-      // 1. Create the base user in the backend
-      // (Assuming /auth/register creates user but doesn't log them in fully if OTP is required next)
-      // Note: We modified auth logic earlier so that we just send OTP.
-      // NextAuth Credentials Provider handles creating the user on verify.
-
-      // We will just send the OTP here, and verify it on the next page.
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,9 +48,8 @@ export default function Register() {
     }
   };
 
-  const handleOAuthSignIn = (provider) => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    window.location.href = `${baseUrl}/api/auth/${provider}`;
+  const handleGoogleSignIn = () => {
+    signIn("google", { callbackUrl: "/cart" });
   };
 
   return (
@@ -125,19 +118,11 @@ export default function Register() {
           <div className="flex flex-col gap-3">
             <button
               type="button"
-              onClick={() => handleOAuthSignIn('google')}
+              onClick={handleGoogleSignIn}
               className="w-full flex items-center justify-center gap-3 p-4 border border-glass-border bg-transparent text-white font-sans hover:bg-white/5 hover:border-luxury-gold transition-colors"
             >
               <img src="/google-icon.svg" alt="Google" className="w-5 h-5" />
               Continue with Google
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOAuthSignIn('facebook')}
-              className="w-full flex items-center justify-center gap-3 p-4 border border-glass-border bg-transparent text-white font-sans hover:bg-white/5 hover:border-luxury-gold transition-colors"
-            >
-              <img src="/facebook-icon.svg" alt="Facebook" className="w-5 h-5" />
-              Continue with Facebook
             </button>
           </div>
         </div>

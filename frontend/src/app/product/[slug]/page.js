@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import { api, BASE_URL } from "@/lib/api";
 import { useCartStore } from "@/lib/cartStore";
+import { Button } from "@/components/ui/Button";
 import styles from "./page.module.css";
 
 export default function ProductDetail({ params }) {
@@ -46,9 +47,9 @@ export default function ProductDetail({ params }) {
         <h1 className={styles.title}>{product.name}</h1>
         <p className={styles.price}>${product.price.toFixed(2)}</p>
         <p className={styles.description}>{product.description}</p>
-        <button className={styles.addBtn} onClick={() => addItem(product)}>
+        <Button onClick={() => addItem(product)} className="w-max px-8">
           Add to Cart
-        </button>
+        </Button>
       </div>
     </div>
   );

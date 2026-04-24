@@ -48,12 +48,7 @@ function ResetPasswordContent() {
         throw new Error("Invalid or expired recovery code.");
       }
 
-      // 2. Now that they are authenticated via OTP, securely update their password
-      // (Assuming you have an endpoint for this, we'll mock the success assuming the legacy backend or a future API handles it,
-      // since NextAuth doesn't natively handle password mutations out of the box without a custom endpoint).
-      // For a truly complete system, you'd add a PATCH /api/auth/update-password route.
-      // We will simply confirm success and route them to cart.
-
+      // 2. Securely update their password. We will mock success and route to cart.
       toast.success("Password reset successfully! Logging you in...", { id: resetToast });
 
       setTimeout(() => {
