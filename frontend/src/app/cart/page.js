@@ -4,6 +4,7 @@ import { useCartStore } from "@/lib/cartStore";
 import { useAuthStore } from "@/lib/authStore";
 import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 import styles from "./page.module.css";
 
 export default function Cart() {
@@ -60,9 +61,9 @@ export default function Cart() {
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            <button className={styles.checkoutBtn} onClick={handleCheckout}>
+            <Button onClick={handleCheckout} className="w-full">
               Proceed to Checkout
-            </button>
+            </Button>
           </div>
         </div>
       )}

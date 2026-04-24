@@ -4,6 +4,8 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import styles from "../login/page.module.css";
 
 function ResetPasswordContent() {
@@ -42,18 +44,16 @@ function ResetPasswordContent() {
         {success && <p style={{ color: '#44ff44', textAlign: 'center', marginBottom: '1.5rem' }}>{success}</p>}
         {!success ? (
           <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.inputGroup}>
-              <label>New Password</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className={styles.submitBtn}>
+            <Input
+              label="New Password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+            <Button type="submit" className="w-full">
               Reset Password
-            </button>
+            </Button>
           </form>
         ) : (
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>

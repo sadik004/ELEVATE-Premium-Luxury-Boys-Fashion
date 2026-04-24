@@ -10,7 +10,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
   const heroRef = useRef(null);
-  const videoRef = useRef(null);
   const bentoRef = useRef(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
 

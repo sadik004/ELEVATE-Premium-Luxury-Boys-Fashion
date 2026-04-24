@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import styles from "./page.module.css";
 
 export default function Login() {
@@ -82,38 +83,34 @@ export default function Login() {
 
         {step === 1 ? (
           <form onSubmit={handleSendOtp} className={styles.form}>
-            <div className={styles.inputGroup}>
-              <label>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <button type="submit" className={styles.submitBtn} disabled={isLoading}>
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              disabled={isLoading}
+            />
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? "Sending..." : "Continue with Email"}
-            </button>
+            </Button>
           </form>
         ) : (
           <form onSubmit={handleVerifyOtp} className={styles.form}>
-            <div className={styles.inputGroup}>
-              <label>Enter OTP</label>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="123456"
-                required
-                disabled={isLoading}
-                maxLength={6}
-              />
-            </div>
-            <button type="submit" className={styles.submitBtn} disabled={isLoading}>
+            <Input
+              label="Enter OTP"
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="123456"
+              required
+              disabled={isLoading}
+              maxLength={6}
+            />
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? "Verifying..." : "Verify OTP"}
-            </button>
+            </Button>
             <button
               type="button"
               onClick={() => handleSendOtp()}
