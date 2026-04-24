@@ -16,6 +16,23 @@
   font-size: 1.2rem;
 }
 
+.paymentStatus {
+  border: 1px solid var(--glass-border);
+  margin: 0 auto 2rem;
+  max-width: 680px;
+  padding: 1rem 1.25rem;
+  text-align: center;
+}
+
+.success {
+  color: #1f8f55;
+}
+
+.failed,
+.cancelled {
+  color: #c43d3d;
+}
+
 .cartContent {
   display: flex;
   gap: 4rem;

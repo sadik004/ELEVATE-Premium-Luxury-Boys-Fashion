@@ -1,180 +1,212 @@
-# ELEVATE — Premium Luxury Boys Fashion
+# ELEVATE - Premium Luxury Boys Fashion
 
-> Ultra-premium e-commerce platform for luxury boys' fashion
+ELEVATE is a dual-stack e-commerce application for premium boys' fashion. The project is split into a Next.js frontend and a FastAPI backend so authentication/UI, commerce data, and payments stay in clear ownership boundaries.
 
-## Overview
+## Current Status
 
-ELEVATE is a full-stack luxury e-commerce platform dedicated to high-end boys' fashion. Designed with a focus on an ultra-premium dark aesthetic, the application features an engaging, interactive 3D frontend powered by React Three Fiber and GSAP animations.
+Last reviewed: 2026-04-24.
 
-The system utilizes a dual-stack architecture:
-- **Frontend (Next.js, NextAuth)**: Strictly handles User Interface, State Management (Zustand), and Authentication (via NextAuth CredentialsProvider for custom OTP-based email login and Google OAuth).
-- **Backend (FastAPI)**: Strictly handles Core Business Logic, product catalog management, payment processing (SSLCommerz), and robust Redis caching.
+Completed:
 
-A legacy **Express.js** backend is also maintained in the repository as a fallback.
+- Next.js storefront pages, product/shop/cart UI, and shared UI components are present.
+- Frontend OTP authentication is implemented with NextAuth CredentialsProvider.
+- Google OAuth wiring is present, but credentials must be configured before use.
+- OTP generation, storage, verification, expiry, reuse prevention, Resend delivery, and optional Upstash rate limiting are implemented.
+- Backend-token hydration exists through `frontend/src/app/api/auth/backend-token/route.js`.
+- FastAPI backend owns products, categories, auth, orders, and SSLCommerz payment routes.
+- SSLCommerz initiation, success/fail/cancel callbacks, validation, and IPN route files are present.
+- `frontend` production build was verified successfully.
+- Prisma Client generation was verified successfully.
 
-## Tech Stack
+Known blockers / unfinished work:
 
-### Frontend
-- **Framework:** Next.js 15 (App Router), React 19
-- **Authentication:** NextAuth (OTP + Google) via Prisma ORM
-- **3D & Rendering:** Three.js, @react-three/fiber, @react-three/drei
-- **Animations:** GSAP (ScrollTrigger plugin)
-- **State Management:** Zustand
-- **Styling:** Tailwind CSS
+- Frontend Prisma schema still needs to be pushed to the production auth database. The direct Supabase host resolved only to IPv6 in the current local environment, so use a Supabase connection pooler URL if direct `5432` cannot connect.
+- Secrets that were shared during setup should be rotated before production use: database password, Resend API key, and Upstash token.
+- `frontend/tests/e2e/auth-email.spec.js` still describes the old magic-link flow and should be updated for OTP.
+- Google login requires real `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+- Production SSLCommerz credentials and a public backend URL are required before real payment callbacks can work.
 
-### Core Backend (FastAPI)
-- **Framework:** FastAPI (Python)
-- **Server:** Uvicorn
-- **ORM:** SQLAlchemy (with Asyncpg) & Alembic for migrations
-- **Caching:** Redis (redis.asyncio) & fastapi-cache2
-- **Database:** PostgreSQL (Neon)
-- **Authentication Services:** JWT (PyJWT), Passlib (bcrypt)
-- **Payments:** SSLCommerz Integration
+## Architecture
 
----
-
-## Project Architecture
-
-### Folder Structure
 ```text
-.
-├── AGENTS.md                  # Strict rules and guidelines for AI agents
-├── README.md                  # Main documentation for human developers
-├── backend-fastapi/           # Primary FastAPI REST API
-│   ├── alembic/               # Alembic database migrations
-│   ├── app/                   # API core application logic
-│   │   ├── api/               # API endpoints/routers
-│   │   ├── core/              # Core configurations and security
-│   │   ├── crud/              # Database CRUD operations
-│   │   ├── db/                # Database session and setup
-│   │   ├── models/            # SQLAlchemy database models
-│   │   ├── schemas/           # Pydantic schemas for request/response validation
-│   │   ├── services/          # External services integration (e.g., payments)
-│   │   └── main.py            # FastAPI application entry point
-│   ├── tests/                 # Pytest test suite
-│   ├── requirements.txt       # Python dependencies
-│   └── seed.py                # Database seed script
-├── backend/                   # Legacy Express.js REST API (Fallback)
-│   ├── middleware/            # Express middlewares (e.g., auth.js)
-│   ├── prisma/                # Prisma schema and seed scripts
-│   ├── routes/                # API route definitions (auth, categories, orders, products)
-│   ├── utils/                 # Utility functions (e.g., email.js)
-│   └── server.js              # Entry point for backend
-└── frontend/                  # Next.js Application
-    ├── prisma/                # Next.js frontend Prisma schema for NextAuth
-    ├── public/                # Static assets (SVGs, icons)
-    ├── src/                   # Source code
-    │   ├── app/               # Next.js App Router pages and API routes
-    │   │   ├── api/           # Backend-for-Frontend API endpoints
-    │   │   │   └── auth/      # NextAuth config and OTP logic (/send-otp)
-    │   │   ├── login/         # Custom OTP email & Google login page
-    │   │   ├── cart/          # Cart UI
-    │   │   └── ...            # Other application pages
-    │   ├── components/        # Reusable React UI components
-    │   ├── lib/               # Utility libraries (e.g., API client, Prisma singleton)
-    │   └── middleware.js      # Edge middleware for route protection and rate limiting
-    ├── tests/                 # E2E frontend test suite
-    ├── next.config.mjs        # Next.js configuration and remote patterns
-    ├── tailwind.config.js     # Tailwind CSS configuration
-    └── package.json           # Frontend dependencies
+Browser
+  |
+  | Next.js routes, cart UI, auth UI
+  v
+frontend/
+  |-- NextAuth, Prisma auth tables, OTP email delivery
+  |-- Zustand cart/auth state
+  |-- Calls FastAPI with NEXT_PUBLIC_API_URL
+  v
+backend-fastapi/
+  |-- Product/category/order/payment APIs
+  |-- SQLAlchemy commerce models and Alembic migrations
+  |-- SSLCommerz session + callback/IPN handling
+  v
+PostgreSQL / Redis / SSLCommerz / Resend / Upstash
 ```
 
----
+Frontend owns browser authentication and UI. Backend owns commerce state and payments.
 
-## 🛠 Frontend Local Setup
+Do not move SSLCommerz logic into the frontend. Do not make the frontend directly manage product, order, payment, or category database rows.
 
-The frontend is a modern Next.js 15 application utilizing App Router and Prisma.
+## Project Structure
 
-### Prerequisites
-- Node.js (v18+ recommended)
-- npm
+```text
+frontend/
+  prisma/schema.prisma                 NextAuth User/Account/Session/OTP schema
+  src/app/api/auth/send-otp/route.js    OTP generation, storage, rate limit, email send
+  src/app/api/auth/[...nextauth]/       OTP and Google sign-in
+  src/app/api/auth/backend-token/       NextAuth-to-FastAPI token bridge
+  src/app/login                         OTP login UI
+  src/app/register                      Signup OTP request UI
+  src/app/verify-email                  Signup OTP verification UI
+  src/app/forgot-password               Recovery OTP request UI
+  src/app/reset-password                Recovery OTP login UI
+  src/app/cart                          Cart and payment initiation UI
 
-### Installation & Execution
-1. **Navigate to the frontend directory:**
-   ```bash
-   cd frontend
-   ```
-2. **Install dependencies:**
-   *(Requires legacy peer deps due to Next/React 19, Tailwind, & Three.js interactions)*
-   ```bash
-   npm install --legacy-peer-deps
-   ```
-3. **Configure Environment Variables:**
-   Copy the example `.env` file or ensure the following are set in `.env.local`:
-   ```bash
-   # Authentication Database (Prisma)
-   DATABASE_URL="postgresql://user:password@localhost:5432/elevate_db"
+backend-fastapi/
+  app/main.py                           FastAPI app entry
+  app/api/v1/api.py                     Router registration
+  app/api/v1/endpoints/                 Auth, catalog, order, payment routes
+  app/models/models.py                  SQLAlchemy commerce models
+  app/services/sslcommerz.py            SSLCommerz service client
+  alembic/                              Backend database migrations
+  seed.py                               Idempotent seed script
+```
 
-### 2. Legacy Backend Setup (Express.js - Fallback Only)
-1. Navigate to the legacy backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure the environment file:
-   ```bash
-   cp .env.example .env
-   ```
-   Ensure you provide appropriate values in the newly created `.env` file.
-4. Prepare the database by generating the Prisma client and pushing the schema:
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
-5. Seed the database:
-   ```bash
-   npm run seed
-   ```
-6. Start the backend server:
-   ```bash
-   npm run dev
-   ```
-   *(Runs on http://localhost:5000)*
+## Frontend Workflow
 
----
+1. Create `frontend/.env.local` from `frontend/.env.example`.
+2. For Prisma CLI commands, also provide `frontend/.env` or load `DATABASE_URL` in the shell. Prisma CLI does not automatically read `.env.local`.
+3. Install dependencies and prepare Prisma.
 
-## Frontend Local Setup
+```bash
+cd frontend
+npm install
+npx prisma db push
+npx prisma generate
+npm run dev
+```
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Configure the environment variables by copying the example file:
-   ```bash
-   cp .env.example .env
-   ```
-   Update `.env` with your actual authentication, database, and email credentials.
-3. Install dependencies (requires legacy peer deps due to Next/React 19, Tailwind, & Three.js interactions):
-   ```bash
-   npm install --legacy-peer-deps
-   ```
-4. Prepare the database and schema for NextAuth by generating the Prisma client and pushing changes:
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
-5. Start the frontend development server:
-   ```bash
-   uvicorn app.main:app --reload --port 5000
-   ```
-   *(Runs on http://localhost:3000)*
+The frontend runs at `http://localhost:3000`.
 
-## Testing
+Required frontend env vars:
 
-To run the automated tests for the primary FastAPI backend:
+```env
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=replace-with-strong-secret
+BACKEND_AUTH_BRIDGE_SECRET=replace-with-strong-secret
+DATABASE_URL=postgresql://user:password@host:5432/database
+RESEND_API_KEY=re_replace_me
+EMAIL_FROM=onboarding@resend.dev
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+Optional frontend env vars:
+
+```env
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
+
+OTP behavior:
+
+- `POST /api/auth/send-otp` creates a 6-digit code and stores it in the `OTP` table.
+- Codes expire after 10 minutes.
+- The latest code for the email is checked during CredentialsProvider sign-in.
+- A verified code is marked used and cannot be reused.
+- If Resend is missing in development, the OTP is logged to the server console.
+- In production, missing Resend config returns an error instead of logging OTP codes.
+
+## Backend Workflow
+
 ```bash
 cd backend-fastapi
-source venv/bin/activate
-PYTHONPATH=. pytest
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+alembic upgrade head
+python seed.py
+uvicorn app.main:app --reload --port 5000
 ```
 
-## Features
-- **3D Hero Section:** Implemented using Three.js and React Three Fiber to deliver an engaging, immersive visual experience.
-- **Animations:** High-performance scroll animations powered by GSAP and ScrollTrigger.
-- **Authentication:** Dual-layer architecture handling UI auth via NextAuth on the frontend (Secure 2-step OTP) and securing sensitive data APIs on the backend.
-- **Payments:** Integrated with SSLCommerz for secure transactions.
-- **Cart Management:** Global state management for an intuitive shopping experience using Zustand.
-- **High-Performance API:** The backend utilizes Redis caching on read-heavy routes to drastically reduce API latency.
+On macOS/Linux:
+
+```bash
+source venv/bin/activate
+```
+
+The backend runs at `http://localhost:5000`. API docs are at `http://localhost:5000/docs`.
+
+Required backend env vars:
+
+```env
+PROJECT_NAME=ELEVATE API
+API_V1_STR=/api
+JWT_SECRET=replace-with-strong-secret
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+DATABASE_URL=postgresql+asyncpg://user:password@host:5432/database
+REDIS_URL=redis://localhost:6379/0
+FRONTEND_URL=http://localhost:3000
+BACKEND_PUBLIC_URL=http://localhost:5000
+SSLCOMMERZ_STORE_ID=your-store-id
+SSLCOMMERZ_STORE_PASSWORD=your-store-password
+SSLCOMMERZ_SANDBOX=true
+SSLCOMMERZ_CURRENCY=BDT
+```
+
+## Commerce And Payment Flow
+
+1. User signs in through OTP or Google on the frontend.
+2. `AuthHydrator` calls `POST /api/auth/backend-token`.
+3. The frontend stores the backend bearer token in Zustand.
+4. Cart calls `POST /api/payments/initiate` on the FastAPI backend.
+5. Backend creates an order and pending payment.
+6. Backend requests an SSLCommerz session and returns `gatewayUrl`.
+7. Browser redirects to SSLCommerz.
+8. SSLCommerz calls backend success/fail/cancel/IPN routes.
+9. Backend validates successful payments and updates order/payment status.
+10. Backend redirects the browser back to the frontend cart page with payment query params.
+
+Implemented payment routes:
+
+- `POST /api/payments/initiate`
+- `GET|POST /api/payments/success`
+- `GET|POST /api/payments/fail`
+- `GET|POST /api/payments/cancel`
+- `GET|POST /api/payments/ipn`
+
+## Checks
+
+Frontend:
+
+```bash
+cd frontend
+npm run build
+```
+
+Backend:
+
+```bash
+cd backend-fastapi
+pytest
+```
+
+## Deployment
+
+- Frontend: Vercel.
+- Backend: Render.
+- Backend must listen on port `5000` unless Render maps it externally.
+- Put secrets in provider dashboards only.
+- Run Alembic migrations for backend schema changes.
+- Run Prisma schema push/migrations for frontend auth schema changes.
+- `BACKEND_PUBLIC_URL` must be a public URL in production because SSLCommerz must reach callback and IPN routes.
+
+## Security Notes
+
+- Never commit `.env`, `.env.local`, API keys, database URLs, OTP codes, NextAuth secrets, Resend keys, Redis tokens, Google OAuth secrets, or SSLCommerz credentials.
+- Rotate any secret that has been shared in chat, screenshots, logs, or issue comments.
+- Keep development-only OTP logging out of production.

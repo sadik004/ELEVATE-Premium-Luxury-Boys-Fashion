@@ -17,6 +17,13 @@ class Settings(BaseSettings):
 
     # CORS
     FRONTEND_URL: str = "http://localhost:3000"
+    BACKEND_PUBLIC_URL: str = "http://localhost:5000"
+
+    # SSLCommerz
+    SSLCOMMERZ_STORE_ID: str = ""
+    SSLCOMMERZ_STORE_PASSWORD: str = ""
+    SSLCOMMERZ_SANDBOX: bool = True
+    SSLCOMMERZ_CURRENCY: str = "BDT"
 
     class Config:
         env_file = ".env"

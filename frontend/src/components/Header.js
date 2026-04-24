@@ -1,25 +1,39 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { useCartStore } from "@/lib/cartStore";
 import { useAuthStore } from "@/lib/authStore";
 
 export default function Header() {
   const items = useCartStore((state) => state.items);
   const { token, user, logout } = useAuthStore();
-  const router = useRouter();
   const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  if (pathname === "/login" || pathname === "/register") {
+    return null;
+  }
 
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   const isHome = pathname === "/";
 
   return (
-    <header className={`z-[100] flex items-center justify-between px-8 py-6 w-full transition-all duration-300 ${
-      isHome
-        ? "absolute top-0 left-0 bg-gradient-to-b from-black/80 to-transparent text-white"
-        : "sticky top-0 bg-luxury-black border-b border-white/10 text-white"
+    <header className={`fixed top-0 left-0 w-full z-[100] flex items-center justify-between px-8 py-6 transition-all duration-500 ${
+      scrolled
+        ? "bg-luxury-black/80 backdrop-blur-md border-b border-white/10 py-4 shadow-lg shadow-black/50"
+        : isHome ? "bg-transparent" : "bg-luxury-black border-b border-white/5"
     }`}>
       <div className="flex items-center">
         <Link href="/" className="font-playfair text-3xl tracking-[0.3em] font-bold text-luxury-gold">
@@ -77,7 +91,7 @@ export default function Header() {
               <button
                 onClick={() => {
                   logout();
-                  router.push("/");
+                  signOut({ callbackUrl: "/" });
                 }}
                 className="px-6 py-3 text-left hover:bg-luxury-gold/10 hover:text-luxury-gold transition-colors uppercase"
               >

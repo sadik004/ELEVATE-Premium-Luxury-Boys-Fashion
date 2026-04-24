@@ -1,36 +1,81 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useAuthStore } from "@/lib/authStore";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import styles from "../login/page.module.css";
 
 function VerifyEmailContent() {
-  const [otpCode, setOtpCode] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const verifyOtp = useAuthStore((state) => state.verifyOtp);
+  const [otp, setOtp] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
+  const name = searchParams.get("name");
 
-  const handleSubmit = async (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
+
     if (!email) {
-      setError("Email address is missing.");
+      toast.error("Email address is missing. Please restart sign-up.");
       return;
     }
 
+    if (!otp || otp.length !== 6) {
+      toast.error("Please enter a valid 6-digit verification code");
+      return;
+    }
+
+    setIsLoading(true);
+    const verifyToast = toast.loading("Verifying your account...");
+
     try {
-      await verifyOtp(email, otpCode);
-      setSuccess("Email verified successfully! Redirecting...");
-      setTimeout(() => {
-        router.push("/cart");
-      }, 1500);
+      const result = await signIn("credentials", {
+        email,
+        name,
+        otp,
+        redirect: false,
+        callbackUrl: "/cart",
+      });
+
+      if (result?.error) {
+        toast.error(result.error, { id: verifyToast });
+      } else {
+        toast.success("Account verified successfully!", { id: verifyToast });
+        window.location.href = result?.url || "/cart";
+      }
     } catch (err) {
-      setError(err.message || "Invalid or expired OTP");
+      toast.error("An unexpected error occurred.", { id: verifyToast });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!email) return;
+
+    setIsLoading(true);
+    const resendToast = toast.loading("Sending new code...");
+
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name, purpose: "signup" }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to resend code");
+      }
+
+      toast.success(data.message || "New code sent! Check your email.", { id: resendToast });
+    } catch (err) {
+      toast.error(err.message, { id: resendToast });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,6 +102,20 @@ function VerifyEmailContent() {
             Verify
           </Button>
         </form>
+
+        <div className="mt-8 text-center">
+          <p className="text-sm text-text-secondary">
+            Didn't receive the code?{" "}
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              disabled={isLoading}
+              className="text-luxury-gold hover:text-white transition-colors uppercase tracking-widest text-xs underline underline-offset-4 ml-1"
+            >
+              Resend
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -64,7 +123,11 @@ function VerifyEmailContent() {
 
 export default function VerifyEmail() {
   return (
-    <Suspense fallback={<div className={styles.authContainer}>Loading...</div>}>
+    <Suspense fallback={
+      <div className="min-h-[80vh] flex items-center justify-center bg-luxury-black">
+        <Loader2 className="animate-spin text-luxury-gold" size={32} />
+      </div>
+    }>
       <VerifyEmailContent />
     </Suspense>
   );
