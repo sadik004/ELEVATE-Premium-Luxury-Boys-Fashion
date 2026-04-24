@@ -2,14 +2,9 @@ import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-});
-
 // Initialize ratelimiter (5 requests per 15 minutes)
 const ratelimit = new Ratelimit({
-  redis: redis,
+  redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(5, "15 m"),
 });
 
@@ -24,15 +19,7 @@ export async function middleware(req) {
     }
 
     try {
-      // Limit by IP and Identifier
-      let identifier = 'unknown';
-      try {
-        const clone = req.clone();
-        const formData = await clone.formData();
-        identifier = formData.get('email') || 'unknown';
-      } catch (e) {}
-
-      const { success, limit, remaining } = await ratelimit.limit(`ratelimit_auth_${ip}_${identifier}`);
+      const { success, limit, remaining } = await ratelimit.limit(`ratelimit_auth_${ip}`);
 
       if (!success) {
         return new NextResponse("Too Many Requests", {
@@ -49,5 +36,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: '/api/auth/signin/email',
+  matcher: '/api/auth/:path*',
 };

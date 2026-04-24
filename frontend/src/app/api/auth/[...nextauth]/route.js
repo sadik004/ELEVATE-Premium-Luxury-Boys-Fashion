@@ -2,20 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import crypto from "crypto";
-
-// 1. Prevent Build-Time Execution
-export const dynamic = "force-dynamic";
-
-// 2. Enforce Node.js Runtime for Prisma compatibility
-export const runtime = "nodejs";
-
-// 3. Safe Prisma Usage: Only instantiate properly via singleton in dev to prevent connection exhaustion,
-// and ensure it does not execute DB calls during module evaluation at build time.
-const globalForPrisma = globalThis;
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+import prisma from "@/lib/prisma";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
