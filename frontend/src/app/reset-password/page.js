@@ -2,10 +2,16 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
+ feat/otp-authentication-1622790782403589352
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import { ArrowRight, KeyRound, Loader2 } from "lucide-react";
+
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import styles from "../login/page.module.css";
+ main
 
 function ResetPasswordContent() {
   const [otp, setOtp] = useState("");
@@ -51,6 +57,7 @@ function ResetPasswordContent() {
   };
 
   return (
+    feat/otp-authentication-1622790782403589352
     <div className="min-h-[80vh] flex items-center justify-center p-6 bg-luxury-black">
       <div className="w-full max-w-md bg-glass-bg border border-glass-border p-10 backdrop-blur-md rounded-sm shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-luxury-gold opacity-50"></div>
@@ -83,6 +90,29 @@ function ResetPasswordContent() {
               required
               disabled={isLoading}
             />
+
+    <div className={styles.authContainer}>
+      <div className={styles.authBox}>
+        <h1 className={styles.title}>New Password</h1>
+        {error && <p className={styles.error}>{error}</p>}
+        {success && <p style={{ color: '#44ff44', textAlign: 'center', marginBottom: '1.5rem' }}>{success}</p>}
+        {!success ? (
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <Input
+              label="New Password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+            <Button type="submit" className="w-full">
+              Reset Password
+            </Button>
+          </form>
+        ) : (
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+             <Link href="/login" style={{ color: 'var(--gold-accent)' }}>Go to Login</Link>
+         main
           </div>
 
           <button

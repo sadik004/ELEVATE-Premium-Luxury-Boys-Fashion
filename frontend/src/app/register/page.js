@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
-import { toast } from "react-hot-toast";
-import { Mail, User, Loader2, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import styles from "../login/page.module.css";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -51,6 +51,7 @@ export default function Register() {
   };
 
   return (
+feat/otp-authentication-1622790782403589352
     <div className="min-h-[80vh] flex items-center justify-center p-6 bg-luxury-black">
       <div className="w-full max-w-md bg-glass-bg border border-glass-border p-10 backdrop-blur-md rounded-sm shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-luxury-gold opacity-50"></div>
@@ -95,6 +96,38 @@ export default function Register() {
               disabled={isLoading}
             />
           </div>
+
+    <div className={styles.authContainer}>
+      <div className={styles.authBox}>
+        <h1 className={styles.title}>Register</h1>
+        {error && <p className={styles.error}>{error}</p>}
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <Input
+            label="Name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button type="submit" className="w-full">
+            Create Account
+          </Button>
+        </form>
+         main
 
           <button
             type="submit"

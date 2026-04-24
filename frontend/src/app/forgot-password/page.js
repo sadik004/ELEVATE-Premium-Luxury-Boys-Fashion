@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "react-hot-toast";
-import { Mail, Loader2, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import styles from "../login/page.module.css";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -45,34 +46,27 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center p-6 bg-luxury-black">
-      <div className="w-full max-w-md bg-glass-bg border border-glass-border p-10 backdrop-blur-md rounded-sm shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-luxury-gold opacity-50"></div>
-        <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-luxury-gold opacity-50"></div>
-        <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-luxury-gold opacity-50"></div>
-        <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-luxury-gold opacity-50"></div>
-
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-serif text-luxury-gold mb-2">Recover Access</h1>
-          <p className="text-text-secondary text-sm uppercase tracking-widest mt-4 leading-relaxed">
-            Enter your email to receive a secure recovery code.
-          </p>
-        </div>
-
-        <form onSubmit={handleSendOtp} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-text-secondary uppercase tracking-widest flex items-center gap-2">
-              <Mail size={14} /> Email Address
-            </label>
-            <input
+    <div className={styles.authContainer}>
+      <div className={styles.authBox}>
+        <h1 className={styles.title}>Reset Password</h1>
+        {error && <p className={styles.error}>{error}</p>}
+        {success && <p style={{ color: '#44ff44', textAlign: 'center', marginBottom: '1.5rem' }}>{success}</p>}
+        {!success ? (
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <Input
+              label="Email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="w-full p-4 bg-white/5 border border-white/10 text-white font-sans focus:outline-none focus:border-luxury-gold transition-colors"
               required
-              disabled={isLoading}
             />
+            <Button type="submit" className="w-full">
+              Send Reset Link
+            </Button>
+          </form>
+        ) : (
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+             <Link href="/login" style={{ color: 'var(--gold-accent)' }}>Back to Login</Link>
           </div>
 
           <button

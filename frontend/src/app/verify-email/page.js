@@ -2,6 +2,8 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import styles from "../login/page.module.css";
 
 function VerifyEmailContent() {
@@ -87,20 +89,18 @@ function VerifyEmailContent() {
         {error && <p className={styles.error}>{error}</p>}
         {success && <p style={{ color: '#44ff44', textAlign: 'center', marginBottom: '1.5rem' }}>{success}</p>}
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label>OTP Code</label>
-            <input
-              type="text"
-              value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value)}
-              placeholder="123456"
-              maxLength={6}
-              required
-            />
-          </div>
-          <button type="submit" className={styles.submitBtn}>
+          <Input
+            label="OTP Code"
+            type="text"
+            value={otpCode}
+            onChange={(e) => setOtpCode(e.target.value)}
+            placeholder="123456"
+            maxLength={6}
+            required
+          />
+          <Button type="submit" className="w-full">
             Verify
-          </button>
+          </Button>
         </form>
 
         <div className="mt-8 text-center">
