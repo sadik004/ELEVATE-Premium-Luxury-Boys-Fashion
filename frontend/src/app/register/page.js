@@ -3,9 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+<<<<<<< HEAD
 import { toast } from "react-hot-toast";
 import { Mail, User, Loader2, ArrowRight } from "lucide-react";
 import { signIn } from "next-auth/react";
+=======
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import styles from "../login/page.module.css";
+>>>>>>> d6232df (refactor: remove legacy express backend and refactor frontend ui)
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -53,6 +59,7 @@ export default function Register() {
   };
 
   return (
+<<<<<<< HEAD
     <div className="min-h-[80vh] flex items-center justify-center p-6 bg-luxury-black">
       <div className="w-full max-w-md bg-glass-bg border border-glass-border p-10 backdrop-blur-md rounded-sm shadow-2xl relative overflow-hidden">
 
@@ -106,6 +113,37 @@ export default function Register() {
             {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Send Verification Code"}
             {!isLoading && <ArrowRight size={18} />}
           </button>
+=======
+    <div className={styles.authContainer}>
+      <div className={styles.authBox}>
+        <h1 className={styles.title}>Register</h1>
+        {error && <p className={styles.error}>{error}</p>}
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <Input
+            label="Name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button type="submit" className="w-full">
+            Create Account
+          </Button>
+>>>>>>> d6232df (refactor: remove legacy express backend and refactor frontend ui)
         </form>
 
         <div className="mt-8 flex flex-col gap-4">

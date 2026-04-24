@@ -2,9 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { toast } from "react-hot-toast";
-import { KeyRound, Loader2, ArrowRight } from "lucide-react";
+import styles from "../login/page.module.css";
 
 function VerifyEmailContent() {
   const [otp, setOtp] = useState("");
@@ -78,47 +76,28 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center p-6 bg-luxury-black">
-      <div className="w-full max-w-md bg-glass-bg border border-glass-border p-10 backdrop-blur-md rounded-sm shadow-2xl relative overflow-hidden">
-
-        {/* Decorative corner accents */}
-        <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-luxury-gold opacity-50"></div>
-        <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-luxury-gold opacity-50"></div>
-        <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-luxury-gold opacity-50"></div>
-        <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-luxury-gold opacity-50"></div>
-
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-serif text-luxury-gold mb-2">Verify Account</h1>
-          <p className="text-text-secondary text-sm uppercase tracking-widest mt-4 leading-relaxed">
-            We sent a 6-digit security code to<br/>
-            <span className="text-white font-medium lowercase tracking-normal">{email || "your email"}</span>
-          </p>
-        </div>
-
-        <form onSubmit={handleVerifyOtp} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-text-secondary uppercase tracking-widest flex items-center gap-2">
-              <KeyRound size={14} /> Security Code
-            </label>
+    <div className={styles.authContainer}>
+      <div className={styles.authBox}>
+        <h1 className={styles.title}>Verify Email</h1>
+        <p style={{ textAlign: 'center', marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>
+          Enter the 6-digit code sent to {email || "your email"}.
+        </p>
+        {error && <p className={styles.error}>{error}</p>}
+        {success && <p style={{ color: '#44ff44', textAlign: 'center', marginBottom: '1.5rem' }}>{success}</p>}
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label>OTP Code</label>
             <input
               type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value)}
               placeholder="123456"
               maxLength={6}
-              className="w-full p-4 bg-white/5 border border-white/10 text-white font-sans focus:outline-none focus:border-luxury-gold transition-colors text-center text-2xl tracking-[0.75em]"
               required
-              disabled={isLoading}
             />
           </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="mt-4 w-full p-4 bg-luxury-gold text-luxury-black font-semibold uppercase tracking-widest hover:bg-white transition-colors flex justify-center items-center gap-2"
-          >
-            {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Verify Account"}
-            {!isLoading && <ArrowRight size={18} />}
+          <button type="submit" className={styles.submitBtn}>
+            Verify
           </button>
         </form>
 

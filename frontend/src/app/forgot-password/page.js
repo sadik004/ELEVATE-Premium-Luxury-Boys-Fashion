@@ -2,9 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+<<<<<<< HEAD
 import { toast } from "react-hot-toast";
 import { Mail, Loader2, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+=======
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import styles from "../login/page.module.css";
+>>>>>>> d6232df (refactor: remove legacy express backend and refactor frontend ui)
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -48,6 +54,7 @@ export default function ForgotPassword() {
   };
 
   return (
+<<<<<<< HEAD
     <div className="min-h-[80vh] flex items-center justify-center p-6 bg-luxury-black">
       <div className="w-full max-w-md bg-glass-bg border border-glass-border p-10 backdrop-blur-md rounded-sm shadow-2xl relative overflow-hidden">
 
@@ -78,6 +85,29 @@ export default function ForgotPassword() {
               required
               disabled={isLoading}
             />
+=======
+    <div className={styles.authContainer}>
+      <div className={styles.authBox}>
+        <h1 className={styles.title}>Reset Password</h1>
+        {error && <p className={styles.error}>{error}</p>}
+        {success && <p style={{ color: '#44ff44', textAlign: 'center', marginBottom: '1.5rem' }}>{success}</p>}
+        {!success ? (
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Button type="submit" className="w-full">
+              Send Reset Link
+            </Button>
+          </form>
+        ) : (
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+             <Link href="/login" style={{ color: 'var(--gold-accent)' }}>Back to Login</Link>
+>>>>>>> d6232df (refactor: remove legacy express backend and refactor frontend ui)
           </div>
 
           <button

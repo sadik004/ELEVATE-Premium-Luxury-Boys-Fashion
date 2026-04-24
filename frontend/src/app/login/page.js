@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { toast } from "react-hot-toast";
-import { Mail, KeyRound, Loader2, ArrowRight } from "lucide-react";
+import styles from "./page.module.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -96,60 +95,39 @@ export default function Login() {
         </div>
 
         {step === 1 ? (
-          <form onSubmit={handleSendOtp} className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs text-text-secondary uppercase tracking-widest flex items-center gap-2">
-                <Mail size={14} /> Email Address
-              </label>
+          <form onSubmit={handleSendOtp} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label>Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="w-full p-4 bg-white/5 border border-white/10 text-white font-sans focus:outline-none focus:border-luxury-gold transition-colors"
                 required
                 disabled={isLoading}
               />
             </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="mt-2 w-full p-4 bg-luxury-gold text-luxury-black font-semibold uppercase tracking-widest hover:bg-white transition-colors flex justify-center items-center gap-2"
-            >
-              {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Continue"}
-              {!isLoading && <ArrowRight size={18} />}
+            <button type="submit" className={styles.submitBtn} disabled={isLoading}>
+              {isLoading ? "Sending..." : "Continue with Email"}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleVerifyOtp} className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs text-text-secondary uppercase tracking-widest flex items-center gap-2">
-                <KeyRound size={14} /> Security Code
-              </label>
+          <form onSubmit={handleVerifyOtp} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label>Enter OTP</label>
               <input
                 type="text"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                placeholder="Enter 6-digit OTP"
-                maxLength={6}
-                className="w-full p-4 bg-white/5 border border-white/10 text-white font-sans focus:outline-none focus:border-luxury-gold transition-colors text-center text-xl tracking-[0.5em]"
+                placeholder="123456"
                 required
                 disabled={isLoading}
+                maxLength={6}
               />
-              <p className="text-xs text-text-secondary text-center mt-2">
-                Sent to {email}
-              </p>
             </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="mt-2 w-full p-4 bg-luxury-gold text-luxury-black font-semibold uppercase tracking-widest hover:bg-white transition-colors flex justify-center items-center gap-2"
-            >
-              {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Verify Code"}
+            <button type="submit" className={styles.submitBtn} disabled={isLoading}>
+              {isLoading ? "Verifying..." : "Verify OTP"}
             </button>
-
             <button
               type="button"
               onClick={() => handleSendOtp()}
