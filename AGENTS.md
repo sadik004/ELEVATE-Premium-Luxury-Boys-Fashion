@@ -64,3 +64,8 @@ When modifying authentication or email systems, validate the following:
 2. The Prisma singleton does not leak connections over multiple request cycles.
 3. Rapid succession hits to `/api/auth/signin/email` return a 429 Too Many Requests response.
 4. Sending a valid POST directly to `/api/webhooks/email` without a QStash signature returns a 401 Unauthorized response.
+
+## 9. Architectural Boundaries & Rules
+
+- **Frontend strictly handles Auth and UI.**
+- **Backend strictly handles Core Business Logic, Products, and Payments.**
