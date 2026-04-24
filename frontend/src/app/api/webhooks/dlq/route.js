@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
 import { Receiver } from "@upstash/qstash";
 
 export const runtime = 'edge';
@@ -33,17 +32,7 @@ export async function POST(req) {
 
     console.error(`[Trace: ${traceId || 'unknown'}] DLQ_ALERT: Exhausted all QStash retries for email sending. User: ${identifier || 'unknown'}`);
 
-    // Capture in Sentry for immediate developer alerting
-    Sentry.captureMessage(`Magic Link Email Failure Exhausted for ${identifier}`, {
-      level: 'fatal',
-      tags: {
-        service: "dlq-monitor",
-        traceId: traceId
-      },
-      extra: {
-        upstashPayload: body
-      }
-    });
+    // TODO: Add your preferred monitoring tool here when Sentry is removed
 
     return new Response("DLQ logged", { status: 200 });
   } catch (err) {
