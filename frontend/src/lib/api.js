@@ -5,7 +5,7 @@ let rawApiUrl =
     : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
 
 if (process.env.NODE_ENV === "production" && !rawApiUrl) {
-  console.error("FATAL ERROR: NEXT_PUBLIC_API_URL is not set in production.");
+  console.error("FATAL ERROR: NEXT_PUBLIC_API_URL is not set in production. Falling back to empty string to prevent build crash.");
   rawApiUrl = ""; // Fallback to avoid crashes, though it should be set
 }
 
