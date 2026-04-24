@@ -1,12 +1,33 @@
-import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
+import { Receiver } from "@upstash/qstash";
 import * as Sentry from "@sentry/nextjs";
 
 export const runtime = 'edge';
 
-async function handler(req) {
+const receiver = new Receiver({
+  currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY || "",
+  nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY || "",
+});
+
+export async function POST(req) {
   let traceId;
   try {
-    const { identifier, url, traceId: incomingTraceId } = await req.json();
+    const signature = req.headers.get("Upstash-Signature");
+    if (!signature) {
+      return new Response("Missing signature", { status: 401 });
+    }
+
+    const rawBody = await req.text();
+    const isValid = await receiver.verify({
+      signature,
+      body: rawBody,
+    });
+
+    if (!isValid) {
+      return new Response("Invalid signature", { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody);
+    const { identifier, url, traceId: incomingTraceId } = body;
     traceId = incomingTraceId;
 
     console.log(`[Trace: ${traceId}] Webhook worker starting execution for ${identifier}`);
@@ -54,6 +75,3 @@ async function handler(req) {
     return new Response("Failed", { status: 500 });
   }
 }
-
-// Secure the webhook endpoint
-export const POST = verifySignatureAppRouter(handler);

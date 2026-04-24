@@ -1,11 +1,31 @@
 import * as Sentry from "@sentry/nextjs";
-import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
+import { Receiver } from "@upstash/qstash";
 
 export const runtime = 'edge';
 
-async function handler(req) {
+const receiver = new Receiver({
+  currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY || "",
+  nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY || "",
+});
+
+export async function POST(req) {
   try {
-    const body = await req.json();
+    const signature = req.headers.get("Upstash-Signature");
+    if (!signature) {
+      return new Response("Missing signature", { status: 401 });
+    }
+
+    const rawBody = await req.text();
+    const isValid = await receiver.verify({
+      signature,
+      body: rawBody,
+    });
+
+    if (!isValid) {
+      return new Response("Invalid signature", { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody);
 
     // The payload from QStash Failure Callback contains the original body
     // that exhausted its retries.
@@ -31,6 +51,3 @@ async function handler(req) {
     return new Response("Internal Error", { status: 500 });
   }
 }
-
-// Ensure the DLQ alert actually comes from Upstash
-export const POST = verifySignatureAppRouter(handler);
