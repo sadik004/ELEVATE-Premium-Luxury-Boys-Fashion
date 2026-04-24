@@ -2,59 +2,49 @@ import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-// Initialize Redis for rate limiting
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL || '',
   token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
 });
 
-// Create a new ratelimiter that allows 5 requests per 15 minutes
+// Initialize ratelimiter (5 requests per 15 minutes)
 const ratelimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(5, '15 m'),
-  analytics: true,
-  prefix: '@upstash/ratelimit',
+  limiter: Ratelimit.slidingWindow(5, "15 m"),
 });
 
-export async function middleware(request) {
-  // Only protect the email sign-in route
-  if (request.nextUrl.pathname === '/api/auth/signin/email' && request.method === 'POST') {
-    const ip = request.ip ?? '127.0.0.1';
+export async function middleware(req) {
+  if (req.nextUrl.pathname.includes('/api/auth/signin/email')) {
+    const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
 
-    // We try to extract the email from the payload to make the limit per IP + Email
-    // Since NextAuth uses x-www-form-urlencoded by default, we read the formData
-    let identifier = 'unknown';
-    try {
-      const clone = request.clone();
-      const formData = await clone.formData();
-      identifier = formData.get('email') || 'unknown';
-    } catch (e) {
-      // Ignore if we can't parse it
+    // In dev, if URL/Token are missing, bypass gently
+    if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+      console.warn("Upstash Redis env variables missing. Rate limiting bypassed.");
+      return NextResponse.next();
     }
 
-    const rateLimitKey = `ratelimit_auth_${ip}_${identifier}`;
+    try {
+      // Limit by IP and Identifier
+      let identifier = 'unknown';
+      try {
+        const clone = req.clone();
+        const formData = await clone.formData();
+        identifier = formData.get('email') || 'unknown';
+      } catch (e) {}
 
-    const { success, limit, reset, remaining } = await ratelimit.limit(rateLimitKey);
+      const { success, limit, remaining } = await ratelimit.limit(`ratelimit_auth_${ip}_${identifier}`);
 
-    if (!success) {
-      console.warn(`RATE_LIMIT_EXCEEDED: IP ${ip} tried to request magic link for ${identifier}`);
-      return new NextResponse(
-        JSON.stringify({
-          error: "Too many requests. Please try again later or use Google sign in."
-        }),
-        {
+      if (!success) {
+        return new NextResponse("Too Many Requests", {
           status: 429,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': remaining.toString(),
-            'X-RateLimit-Reset': reset.toString(),
-          }
-        }
-      );
+          headers: { "X-RateLimit-Limit": limit.toString(), "X-RateLimit-Remaining": remaining.toString() }
+        });
+      }
+    } catch (err) {
+       console.error("Ratelimit error:", err);
+       // Allow request through if Redis fails
     }
   }
-
   return NextResponse.next();
 }
 

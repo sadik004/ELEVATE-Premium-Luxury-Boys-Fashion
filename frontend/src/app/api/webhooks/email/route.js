@@ -4,17 +4,23 @@ import * as Sentry from "@sentry/nextjs";
 
 export const runtime = 'edge';
 
-const receiver = new Receiver({
-  currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY || "",
-  nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY || "",
-});
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-});
-
 export async function POST(req) {
+  // Graceful bypass for local dev if missing env vars
+  if (!process.env.QSTASH_CURRENT_SIGNING_KEY || !process.env.UPSTASH_REDIS_REST_URL) {
+     console.warn("Missing Upstash env vars. Webhook processing safely bypassed for local dev.");
+     return new Response("Bypassed", { status: 200 });
+  }
+
+  const receiver = new Receiver({
+    currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
+    nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY,
+  });
+
+  const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+
   let traceId;
   let messageId;
   let lockAcquired = false;
@@ -70,7 +76,7 @@ export async function POST(req) {
       signal: controller.signal,
       body: JSON.stringify({
         from: "Elevate Auth <login@yourdomain.com>",
-        to: identifier,
+        to: identifier || body.email,
         subject: "Sign in to Elevate",
         html: `
           <body style="background: #0a0a0a; color: #fff; font-family: sans-serif; padding: 20px;">
@@ -108,7 +114,7 @@ export async function POST(req) {
     console.error(`[Trace: ${traceId || 'unknown'}] Webhook worker failed:`, error);
 
     // Timeout Safety: Clean up lock on internal execution failure so QStash can try again
-    if (lockAcquired && messageId && error.name === 'AbortError') {
+    if (lockAcquired && messageId && (error.name === 'AbortError' || true)) {
         const lockKey = `email_lock_${messageId}`;
         await redis.del(lockKey).catch(() => {});
     }
