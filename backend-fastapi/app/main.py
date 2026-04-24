@@ -42,6 +42,10 @@ public_images_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirnam
 if os.path.exists(public_images_path):
     app.mount("/images", StaticFiles(directory=public_images_path), name="images")
 
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Backend is running 🚀"}
+
 @app.get("/api/health")
 def health_check():
     return {"status": "OK", "message": "ELEVATE API is running"}
