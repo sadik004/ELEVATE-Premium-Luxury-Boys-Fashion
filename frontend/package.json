@@ -13,11 +13,14 @@
     "@prisma/client": "^5.22.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@sentry/nextjs": "^10.50.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.37.0",
     "autoprefixer": "^10.4.14",
     "gsap": "^3.12.2",
     "next": "^15.5.15",
     "next-auth": "^4.24.14",
-    "nodemailer": "7.0.13",
+    "nodemailer": "^7.0.7",
     "postcss": "^8.4.21",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
@@ -27,8 +30,5 @@
   },
   "devDependencies": {
     "prisma": "^5.22.0"
-  },
-  "overrides": {
-    "nodemailer": "7.0.13"
   }
 }

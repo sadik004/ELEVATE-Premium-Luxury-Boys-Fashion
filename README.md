@@ -6,35 +6,29 @@
 
 ELEVATE is a full-stack luxury e-commerce platform dedicated to high-end boys' fashion. Designed with a focus on an ultra-premium dark aesthetic, the application features an engaging, interactive 3D frontend powered by React Three Fiber and GSAP animations.
 
-The system utilizes a dual-stack architecture:
-- **Frontend**: A Next.js 15 (App Router) application that handles all User Interface, State Management (Zustand), and Authentication (via NextAuth and PrismaAdapter).
-- **Core Backend**: A modern **FastAPI** Python application that serves as the source of truth for core business logic, product catalog management, payment processing (SSLCommerz), and robust Redis caching.
-
-A legacy **Express.js** backend is also maintained in the repository as a fallback.
+The backend has recently been modernized to a **FastAPI** architecture to provide superior performance, asynchronous operations, and Redis caching. A legacy **Express.js** backend is also maintained as a fallback.
 
 ## Tech Stack
 
 ### Frontend
 - **Framework:** Next.js 15 (App Router), React 19
-- **Authentication:** NextAuth (using PrismaAdapter)
 - **3D & Rendering:** Three.js, @react-three/fiber, @react-three/drei
 - **Animations:** GSAP (ScrollTrigger plugin)
 - **State Management:** Zustand
-- **Styling:** Tailwind CSS
+- **Styling:** CSS Modules (Tailwind CSS is explicitly avoided)
 
-### Core Backend (FastAPI)
+### Primary Backend (FastAPI)
 - **Framework:** FastAPI (Python)
 - **Server:** Uvicorn
 - **ORM:** SQLAlchemy (with Asyncpg) & Alembic for migrations
 - **Caching:** Redis (redis.asyncio) & fastapi-cache2
-- **Database:** PostgreSQL (Neon)
-- **Authentication Services:** JWT (PyJWT), Passlib (bcrypt)
-- **Payments:** SSLCommerz Integration
+- **Database:** PostgreSQL
+- **Authentication:** JWT (PyJWT), Passlib (bcrypt)
 
 ### Legacy Fallback Backend (Express.js)
 - **Framework:** Express.js (Node.js)
 - **ORM:** Prisma
-- **Database:** PostgreSQL
+- **Database:** PostgreSQL / SQLite
 - **Authentication:** JWT (jsonwebtoken) and bcryptjs
 
 ## Project Architecture
@@ -67,7 +61,7 @@ A legacy **Express.js** backend is also maintained in the repository as a fallba
 - Redis Server
 - npm
 
-### 1. Core Backend Setup (FastAPI)
+### 1. Primary Backend Setup (FastAPI)
 1. Navigate to the modern backend directory:
    ```bash
    cd backend-fastapi
@@ -101,7 +95,7 @@ A legacy **Express.js** backend is also maintained in the repository as a fallba
    ```bash
    cd frontend
    ```
-2. Install dependencies (requires legacy peer deps due to Next/React 19, Tailwind, & Three.js interactions):
+2. Install dependencies (requires legacy peer deps due to Next/React 19 & Three.js interactions):
    ```bash
    npm install --legacy-peer-deps
    ```
@@ -147,7 +141,6 @@ PYTHONPATH=. pytest
 ## Features
 - **3D Hero Section:** Implemented using Three.js and React Three Fiber to deliver an engaging, immersive visual experience.
 - **Animations:** High-performance scroll animations powered by GSAP and ScrollTrigger.
-- **Authentication:** Dual-layer architecture handling UI auth via NextAuth on the frontend and securing sensitive data APIs on the backend.
-- **Payments:** Integrated with SSLCommerz for secure transactions.
+- **Authentication:** Secure JWT-based user authentication system.
 - **Cart Management:** Global state management for an intuitive shopping experience using Zustand.
 - **High-Performance API:** The backend utilizes Redis caching on read-heavy routes to drastically reduce API latency.

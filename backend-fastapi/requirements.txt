@@ -3,7 +3,6 @@ uvicorn
 sqlalchemy
 alembic
 asyncpg
-greenlet
 psycopg2-binary
 pydantic[email]
 passlib[bcrypt]
