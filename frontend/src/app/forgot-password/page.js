@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import styles from "../login/page.module.css";
 
 export default function ForgotPassword() {
@@ -30,18 +32,16 @@ export default function ForgotPassword() {
         {success && <p style={{ color: '#44ff44', textAlign: 'center', marginBottom: '1.5rem' }}>{success}</p>}
         {!success ? (
           <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.inputGroup}>
-              <label>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className={styles.submitBtn}>
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Button type="submit" className="w-full">
               Send Reset Link
-            </button>
+            </Button>
           </form>
         ) : (
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>

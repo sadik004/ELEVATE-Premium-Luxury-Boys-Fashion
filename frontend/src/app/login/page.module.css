@@ -33,48 +33,6 @@
   gap: 1.5rem;
 }
 
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.inputGroup label {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.inputGroup input {
-  padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
-  font-family: var(--font-inter);
-}
-
-.inputGroup input:focus {
-  outline: none;
-  border-color: var(--gold-accent);
-}
-
-.submitBtn {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: var(--gold-accent);
-  color: var(--bg-color);
-  border: none;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.submitBtn:hover {
-  background: #fff;
-}
 
 .socialContainer {
   margin-top: 1.5rem;

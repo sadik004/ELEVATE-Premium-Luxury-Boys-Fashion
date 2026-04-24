@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useAuthStore } from "@/lib/authStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import styles from "../login/page.module.css";
 
 export default function Register() {
@@ -30,36 +32,30 @@ export default function Register() {
         <h1 className={styles.title}>Register</h1>
         {error && <p className={styles.error}>{error}</p>}
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label>Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className={styles.submitBtn}>
+          <Input
+            label="Name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button type="submit" className="w-full">
             Create Account
-          </button>
+          </Button>
         </form>
 
         <div className={styles.socialContainer}>
