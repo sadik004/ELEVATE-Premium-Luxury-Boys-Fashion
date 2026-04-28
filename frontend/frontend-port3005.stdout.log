@@ -1,0 +1,15 @@
+
+> elevate-frontend@1.0.0 dev
+> next dev --port 3005
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3005
+   - Network:      http://192.168.0.126:3005
+
+ ✓ Starting...
+ ✓ Ready in 1356ms
+ ○ Compiling / ...
+ ✓ Compiled / in 5.2s (704 modules)
+ GET / 200 in 5766ms
+ ✓ Compiled in 692ms (280 modules)
+[?25h

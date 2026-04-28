@@ -1,0 +1,86 @@
+
+> elevate-frontend@1.0.0 dev
+> next dev --port 3005
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3005
+   - Network:      http://192.168.0.126:3005
+
+ ✓ Starting...
+ ✓ Ready in 1396ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.5s (686 modules)
+ GET / 200 in 3134ms
+ ✓ Compiled in 722ms (280 modules)
+ GET / 200 in 124ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1390ms (785 modules)
+ GET /login 200 in 1624ms
+ GET /login 200 in 41ms
+ GET /login 200 in 32ms
+ ✓ Compiled /middleware in 199ms (119 modules)
+ ○ Compiling /api/auth/send-otp ...
+ ✓ Compiled /api/auth/send-otp in 1894ms (1064 modules)
+ POST /api/auth/send-otp 500 in 2376ms
+ ✓ Compiled /shop in 398ms (1086 modules)
+ GET /shop 200 in 553ms
+ GET /shop 200 in 29ms
+ GET /shop 200 in 26ms
+ GET /shop 200 in 28ms
+ GET /shop 200 in 205ms
+ GET /shop 200 in 28ms
+ GET /shop 200 in 31ms
+ GET /shop 200 in 28ms
+ GET / 200 in 54ms
+ GET / 200 in 109ms
+ POST /api/auth/send-otp 500 in 196ms
+ ✓ Compiled in 796ms (812 modules)
+ GET / 200 in 265ms
+ ✓ Compiled in 126ms (327 modules)
+ ✓ Compiled in 184ms (341 modules)
+ GET / 200 in 63ms
+ ✓ Compiled in 156ms (341 modules)
+ GET / 200 in 52ms
+ ✓ Compiled in 145ms (341 modules)
+ GET / 200 in 84ms
+ ✓ Compiled in 551ms (812 modules)
+ ✓ Compiled /_not-found in 482ms (803 modules)
+ GET / 404 in 681ms
+ GET / 200 in 393ms
+ ✓ Compiled in 675ms (825 modules)
+ GET / 200 in 180ms
+ ✓ Compiled in 458ms (827 modules)
+ GET / 200 in 137ms
+ ✓ Compiled in 154ms (349 modules)
+ GET / 200 in 49ms
+ ✓ Compiled in 92ms (331 modules)
+ ✓ Compiled in 7.9s (1947 modules)
+ GET / 200 in 256ms
+ ○ Compiling /api/auth/send-otp ...
+ ✓ Compiled /api/auth/send-otp in 2.7s (1319 modules)
+ POST /api/auth/send-otp 500 in 3294ms
+ GET / 200 in 775ms
+ ✓ Compiled in 1119ms (1947 modules)
+ GET / 200 in 272ms
+ GET / 200 in 490ms
+ GET /login 200 in 85ms
+ ○ Compiling /register ...
+ ✓ Compiled /register in 812ms (1958 modules)
+ GET /register 200 in 1021ms
+ GET /register 200 in 40ms
+ GET /register 200 in 327ms
+ GET /login 200 in 55ms
+ ✓ Compiled /api/auth/send-otp in 392ms (1326 modules)
+ POST /api/auth/send-otp 500 in 667ms
+ ✓ Compiled in 503ms (910 modules)
+ GET /login 200 in 142ms
+ POST /api/auth/send-otp 500 in 28ms
+ GET /register 200 in 45ms
+ GET /login 200 in 32ms
+ ✓ Compiled in 262ms (910 modules)
+ GET /login 200 in 50ms
+ ✓ Compiled in 753ms (1956 modules)
+ GET /login 200 in 260ms
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
