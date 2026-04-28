@@ -54,12 +54,12 @@ function ParticleWave({ typingIntensity }) {
     <Points ref={pointsRef} positions={positions} stride={3} frustumCulled={false}>
       <PointMaterial
         transparent
-        color="#9333ea" // Deep Purple to match the user's original concept
-        size={0.03}
+        color="#F7E7CE" // Champagne gold
+        size={0.05}
         sizeAttenuation={true}
         depthWrite={false}
-        opacity={0.7}
-        blending={THREE.AdditiveBlending}
+        opacity={0.8}
+        blending={THREE.NormalBlending}
       />
     </Points>
   );
@@ -67,15 +67,14 @@ function ParticleWave({ typingIntensity }) {
 
 export default function LoginBackground({ intensity = 0 }) {
   return (
-    <div className="absolute inset-0 z-0 bg-black overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 z-0 bg-luxury-pearl overflow-hidden pointer-events-none">
       <Canvas camera={{ position: [0, 3, 6], fov: 60 }}>
-        {/* Deep fog fades out particles in the distance */}
-        <fog attach="fog" args={["#000", 3, 12]} />
+        {/* Soft fog fades out particles in the distance */}
+        <fog attach="fog" args={["#F8F6F0", 3, 12]} />
         <ParticleWave typingIntensity={intensity} />
       </Canvas>
-      {/* Vignette overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000_100%)] pointer-events-none opacity-80" />
+      {/* Light vignette overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#F8F6F0_100%)] pointer-events-none opacity-80" />
     </div>
   );
 }
-

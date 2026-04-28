@@ -15,70 +15,38 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
     CredentialsProvider({
-      name: "OTP",
+      name: "Password",
       credentials: {
-        email: { label: "Email", type: "email" },
-        otp: { label: "OTP", type: "text" },
-        name: { label: "Name", type: "text" },
+        identifier: { label: "Email or Phone", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.otp) {
-          throw new Error("Email and OTP are required");
+        console.log("Authorize called with identifier:", credentials?.identifier);
+        
+        if (!credentials?.identifier || !credentials?.password) {
+          throw new Error("Email/Phone and password are required");
         }
 
-        const email = credentials.email.trim().toLowerCase();
+        const identifier = credentials.identifier.trim().toLowerCase();
+        const isEmail = identifier.includes("@");
 
-        // 1. Find OTP by email
-        // Sort by creation date descending to get the most recent one
-        const otpRecord = await prisma.oTP.findFirst({
-          where: { email },
-          orderBy: { createdAt: 'desc' }
+        // Find user by email or phone
+        const user = await prisma.user.findUnique({
+          where: isEmail ? { email: identifier } : { phone: identifier }
         });
 
-        // 2. Validate
-        if (!otpRecord) {
-          throw new Error("Invalid OTP");
+        if (!user || !user.password) {
+          throw new Error("Invalid credentials");
         }
 
-        if (otpRecord.otp !== credentials.otp) {
-          throw new Error("Invalid OTP");
+        const bcrypt = require("bcryptjs");
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isPasswordValid) {
+          throw new Error("Invalid credentials");
         }
 
-        if (new Date() > otpRecord.expiresAt) {
-          throw new Error("OTP has expired");
-        }
-
-        if (otpRecord.verified) {
-          throw new Error("OTP has already been used");
-        }
-
-        // 3. Mark OTP as verified
-        await prisma.oTP.update({
-          where: { id: otpRecord.id },
-          data: { verified: true }
-        });
-
-        // 4. Find or create user by email
-        let user = await prisma.user.findUnique({
-          where: { email }
-        });
-
-        if (!user) {
-          user = await prisma.user.create({
-            data: {
-              email,
-              name: credentials.name || null,
-              emailVerified: new Date(),
-            }
-          });
-        } else if (!user.name && credentials.name) {
-          user = await prisma.user.update({
-            where: { id: user.id },
-            data: { name: credentials.name },
-          });
-        }
-
-        // 5. Return user object
+        // Return user object
         return user;
       }
     })
@@ -94,12 +62,16 @@ export const authOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub;
+        session.user.role = token.role;
+        session.user.phone = token.phone;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
+        token.role = user.role;
+        token.phone = user.phone;
       }
       return token;
     },

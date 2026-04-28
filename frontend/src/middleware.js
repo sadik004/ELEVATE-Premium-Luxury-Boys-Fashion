@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { getToken } from 'next-auth/jwt';
 
 // Initialize ratelimiter (5 requests per 15 minutes)
 const ratelimit = new Ratelimit({
@@ -9,7 +10,19 @@ const ratelimit = new Ratelimit({
 });
 
 export async function middleware(req) {
-  if (req.nextUrl.pathname.includes('/api/auth/signin/email')) {
+  const { pathname } = req.nextUrl;
+
+  // 1. Admin Protection
+  if (pathname.startsWith('/admin')) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    
+    if (!token || token.role !== 'admin') {
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+  }
+
+  // 2. Auth Rate Limiting
+  if (pathname.includes('/api/auth/signin/email')) {
     const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
 
     // In dev, if URL/Token are missing, bypass gently
@@ -36,5 +49,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: '/api/auth/:path*',
+  matcher: ['/api/auth/:path*', '/admin/:path*'],
 };
