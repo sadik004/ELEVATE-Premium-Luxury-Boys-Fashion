@@ -140,9 +140,23 @@ async def _mark_payment(
     await db.commit()
 
 
-def _frontend_redirect(payment_status: str, transaction_id: Optional[str]) -> RedirectResponse:
-    frontend_url = settings.FRONTEND_URL.rstrip("/")
-    location = f"{frontend_url}/cart?payment={payment_status}"
+def _frontend_redirect(payment_status: str, transaction_id: Optional[str] = None) -> RedirectResponse:
+    """
+    Constructs a safe redirect URL to the frontend cart page with payment status.
+    """
+    from urllib.parse import urlencode, urljoin
+    
+    # Ensure base URL is valid
+    base_url = settings.FRONTEND_URL
+    path = "/cart"
+    
+    # Build query parameters
+    params = {"payment": payment_status}
     if transaction_id:
-        location = f"{location}&transactionId={transaction_id}"
-    return RedirectResponse(location, status_code=status.HTTP_303_SEE_OTHER)
+        params["transactionId"] = transaction_id
+    
+    # Construct final URL
+    query_string = urlencode(params)
+    redirect_url = f"{urljoin(base_url, path)}?{query_string}"
+    
+    return RedirectResponse(redirect_url, status_code=status.HTTP_303_SEE_OTHER)

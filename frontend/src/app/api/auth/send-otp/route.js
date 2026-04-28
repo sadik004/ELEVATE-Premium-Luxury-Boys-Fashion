@@ -2,31 +2,16 @@ import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { Resend } from 'resend';
+import { sendOtpEmail } from '@/lib/email';
+import { checkRateLimit } from '@/lib/ratelimit';
 import prisma from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-// Initialize Redis and Ratelimit (if environment variables exist)
-// Note: In development/sandbox we gracefully fall back if Upstash is not fully configured,
-// but the plan requires we set this up.
-let ratelimit;
-if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
-
-  ratelimit = new Ratelimit({
-    redis: redis,
-    limiter: Ratelimit.slidingWindow(5, '10 m'), // 5 requests per 10 minutes
-  });
-} else {
-  // Dummy ratelimiter for environments where Upstash isn't configured yet
-  ratelimit = {
-    limit: async () => ({ success: true })
-  };
-}
+// Note: Configuration moved to @/lib/ratelimit.js
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_key');
 const isProduction = process.env.NODE_ENV === 'production';
@@ -48,70 +33,87 @@ export async function POST(req) {
       );
     }
 
-    // Rate Limiting by IP
+    // Rate Limiting by IP + Email
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-    const { success } = await ratelimit.limit(`ratelimit_send_otp_${ip}_${normalizedEmail}`);
+    const { success } = await checkRateLimit(`send_otp_${ip}_${normalizedEmail}`);
 
     if (!success) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+      return NextResponse.json({ 
+        error: 'Too many requests. Please try again in a minute.' 
+      }, { status: 429 });
     }
 
-    // Generate 6-digit OTP
-    const otp = "123456"; // Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate secure 6-digit OTP
+    let otp = crypto.randomInt(100000, 999999).toString();
 
-    // Store in DB (expires in 10 minutes)
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    // Deterministic OTP for e2e testing
+    if (process.env.NEXT_PUBLIC_APP_ENV === 'test') {
+      otp = '123456';
+    }
 
-    await prisma.oTP.create({
-      data: {
-        email: normalizedEmail,
-        otp,
-        expiresAt,
-        verified: false,
-      },
-    });
+    // Hash OTP for storage
+    const hashedOtp = await bcrypt.hash(otp, 10);
 
-    if (!process.env.RESEND_API_KEY) {
-      if (isProduction) {
-        return NextResponse.json(
-          { error: 'Email delivery is not configured. Set RESEND_API_KEY and EMAIL_FROM.' },
-          { status: 500 }
-        );
+    // Expiry: 5 minutes
+    const TTL = 5 * 60;
+    const expiresAt = new Date(Date.now() + TTL * 1000);
+
+    let storedSuccessfully = false;
+
+    // 1. Try Redis Storage (Primary)
+    if (process.env.UPSTASH_REDIS_REST_URL) {
+      try {
+        const redis = new Redis({
+          url: process.env.UPSTASH_REDIS_REST_URL,
+          token: process.env.UPSTASH_REDIS_REST_TOKEN,
+        });
+        await redis.setex(`otp:${normalizedEmail}`, TTL, hashedOtp);
+        storedSuccessfully = true;
+      } catch (redisError) {
+        console.error('Redis OTP storage failed, falling back to DB:', redisError);
       }
-
-      console.log(`[Development] OTP generated for ${normalizedEmail}: ${otp}`);
-      return NextResponse.json(
-        { message: 'Email delivery is not configured locally. OTP was logged to the server console.' },
-        { status: 200 }
-      );
     }
 
-    const copy = {
-      signup: {
-        subject: 'Verify your ELEVATE account',
-        intro: 'Use this code to verify your ELEVATE account.',
-      },
-      recovery: {
-        subject: 'Recover your ELEVATE access',
-        intro: 'Use this code to recover access to your ELEVATE account.',
-      },
-      login: {
-        subject: 'Your ELEVATE access code',
-        intro: 'Use this code to sign in to ELEVATE.',
-      },
-    }[purpose] || {
-      subject: 'Your ELEVATE access code',
-      intro: 'Use this code to continue.',
-    };
+    // 2. Try DB Storage (Fallback or Parallel)
+    if (!storedSuccessfully || true) { // We always try DB as well for persistence/audit if possible
+      try {
+        await prisma.oTP.create({
+          data: {
+            email: normalizedEmail,
+            otp: hashedOtp,
+            expiresAt,
+            verified: false,
+          },
+        });
+        storedSuccessfully = true;
+      } catch (dbError) {
+        console.error('Database OTP storage failed:', dbError);
+        if (!storedSuccessfully) {
+          return NextResponse.json({ error: 'System is temporarily unavailable. Please try again later.' }, { status: 503 });
+        }
+      }
+    }
 
-    await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+    // 3. Send Email
+    const emailResult = await sendOtpEmail({
       to: normalizedEmail,
-      subject: copy.subject,
-      html: `<p>${copy.intro}</p><p>Your OTP code is <strong>${otp}</strong>. It will expire in 10 minutes.</p>`,
+      otp,
+      purpose
     });
 
-    return NextResponse.json({ message: 'OTP sent successfully. Check your email.' }, { status: 200 });
+    if (!emailResult.success) {
+      // In production, we fail if email delivery fails.
+      // In development, the utility handles mocking.
+      if (isProduction && !emailResult.mocked) {
+        return NextResponse.json({ error: 'Failed to deliver email. Please try again later.' }, { status: 500 });
+      }
+    }
+
+    const responseMessage = emailResult.mocked 
+      ? 'OTP generated (Mocked). Check server console.' 
+      : 'OTP sent successfully. Check your email.';
+
+    return NextResponse.json({ message: responseMessage }, { status: 200 });
 
   } catch (error) {
     console.error('Error in send-otp route:', error);

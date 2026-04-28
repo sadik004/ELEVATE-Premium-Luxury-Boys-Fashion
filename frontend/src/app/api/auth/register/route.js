@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { Redis } from "@upstash/redis";
 
 export async function POST(req) {
   try {
@@ -13,17 +14,40 @@ export async function POST(req) {
     const normalizedEmail = email.trim().toLowerCase();
 
     // 1. Verify OTP
-    const otpRecord = await prisma.oTP.findFirst({
-      where: { email: normalizedEmail, verified: false },
-      orderBy: { createdAt: 'desc' }
-    });
+    let hashedOtp = null;
 
-    if (!otpRecord || otpRecord.otp !== otp) {
-      return NextResponse.json({ error: "Invalid verification code" }, { status: 400 });
+    // Check Redis first
+    if (process.env.UPSTASH_REDIS_REST_URL) {
+      try {
+        const redis = new Redis({
+          url: process.env.UPSTASH_REDIS_REST_URL,
+          token: process.env.UPSTASH_REDIS_REST_TOKEN,
+        });
+        hashedOtp = await redis.get(`otp:${normalizedEmail}`);
+      } catch (e) {
+        console.error("Redis OTP fetch failed:", e);
+      }
     }
 
-    if (new Date() > otpRecord.expiresAt) {
-      return NextResponse.json({ error: "Verification code has expired" }, { status: 400 });
+    // Fallback to Prisma if not in Redis
+    let otpRecord = null;
+    if (!hashedOtp) {
+      otpRecord = await prisma.oTP.findFirst({
+        where: { email: normalizedEmail, verified: false },
+        orderBy: { createdAt: 'desc' }
+      });
+      if (otpRecord) {
+        if (new Date() > otpRecord.expiresAt) {
+          return NextResponse.json({ error: "Verification code has expired" }, { status: 400 });
+        }
+        hashedOtp = otpRecord.otp;
+      }
+    }
+
+    const isOtpValid = hashedOtp ? await bcrypt.compare(otp, hashedOtp) : false;
+
+    if (!hashedOtp || !isOtpValid) {
+      return NextResponse.json({ error: "Invalid verification code" }, { status: 400 });
     }
 
     // 2. Check if user already exists
