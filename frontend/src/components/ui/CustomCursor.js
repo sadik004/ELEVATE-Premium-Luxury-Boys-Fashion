@@ -31,7 +31,7 @@ export default function CustomCursor() {
 
       // Outline follows with a slight delay
       gsap.to(outline, {
-        duration: 0.4,
+        duration: 0.5,
         x: e.clientX,
         y: e.clientY,
         ease: "power3.out",
@@ -39,13 +39,13 @@ export default function CustomCursor() {
     };
 
     const onMouseEnter = () => {
-      gsap.to(outline, { scale: 1.5, opacity: 0.5, duration: 0.3 });
-      gsap.to(dot, { scale: 0, duration: 0.3 });
+      gsap.to(outline, { scale: 1.5, opacity: 0.8, backgroundColor: "rgba(197, 179, 88, 0.1)", borderColor: "rgba(197, 179, 88, 0.5)", duration: 0.4, ease: "back.out(1.5)" });
+      gsap.to(dot, { scale: 0.5, backgroundColor: "#C5B358", duration: 0.3 });
     };
 
     const onMouseLeave = () => {
-      gsap.to(outline, { scale: 1, opacity: 1, duration: 0.3 });
-      gsap.to(dot, { scale: 1, duration: 0.3 });
+      gsap.to(outline, { scale: 1, opacity: 1, backgroundColor: "transparent", borderColor: "rgba(51, 51, 51, 0.2)", duration: 0.4, ease: "power2.out" });
+      gsap.to(dot, { scale: 1, backgroundColor: "#333333", duration: 0.3 });
     };
 
     window.addEventListener("mousemove", onMouseMove);
@@ -70,11 +70,11 @@ export default function CustomCursor() {
     <>
       <div
         ref={cursorDot}
-        className="fixed top-0 left-0 w-2 h-2 bg-luxury-gold rounded-full pointer-events-none z-[9999] mix-blend-difference hidden md:block"
+        className="fixed top-0 left-0 w-2 h-2 bg-luxury-charcoal rounded-full pointer-events-none z-[9999] hidden md:block shadow-sm"
       />
       <div
         ref={cursorOutline}
-        className="fixed top-0 left-0 w-8 h-8 border border-luxury-gold/50 rounded-full pointer-events-none z-[9998] transition-opacity hidden md:block"
+        className="fixed top-0 left-0 w-10 h-10 border border-luxury-charcoal/20 rounded-full pointer-events-none z-[9998] transition-colors hidden md:block backdrop-blur-[1px]"
       />
     </>
   );

@@ -77,16 +77,28 @@ The backend must listen on port `5000` locally and in deployment unless the host
 
 ## Current Auth Flow
 
-1. User enters email on `/login`, `/register`, or `/forgot-password`.
-2. Frontend calls `POST /api/auth/send-otp`.
-3. The route normalizes the email, rate-limits if Upstash is configured, creates a 6-digit OTP, stores it in Prisma, and sends it through Resend.
-4. User enters OTP.
-5. NextAuth CredentialsProvider checks the latest OTP for the email.
-6. Valid OTP is marked `verified=true`.
-7. NextAuth creates or updates the Prisma `User`.
-8. `AuthHydrator` calls `POST /api/auth/backend-token` to get a FastAPI bearer token for commerce APIs.
+1. User enters email/phone and password on `/login`.
+2. NextAuth CredentialsProvider finds the user by email or phone.
+3. Password is verified using `bcryptjs`.
+4. If valid, NextAuth creates a session and `AuthHydrator` calls `POST /api/auth/backend-token` to get a FastAPI bearer token.
 
-Do not reintroduce magic-link or QStash auth. The current auth direction is OTP CredentialsProvider plus optional Google OAuth.
+Registration Flow:
+1. User enters Name, Email, Phone (optional), and Password on `/register`.
+2. Frontend calls `POST /api/auth/send-otp` to send a verification code to the email.
+3. User is redirected to `/verify-email`.
+4. User enters OTP.
+5. Frontend calls `POST /api/auth/register` which verifies OTP, hashes the password, and creates the Prisma `User`.
+6. User is automatically signed in.
+
+Forgot Password Flow:
+1. User enters email on `/forgot-password`.
+2. Frontend calls `POST /api/auth/send-otp` with `purpose="recovery"`.
+3. User is redirected to `/reset-password`.
+4. User enters OTP and new password.
+5. Frontend calls `POST /api/auth/reset-password` which verifies OTP and updates the password.
+6. User is automatically signed in.
+
+Do not reintroduce magic-link or OTP-only login. The current auth system is Email/Phone + Password with OTP verification for registration and recovery.
 
 ## Current Payment Flow
 

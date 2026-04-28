@@ -3,32 +3,34 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import styles from "../login/page.module.css";
+import { signIn } from "next-auth/react";
+import { toast } from "react-hot-toast";
+import { Mail, User, Loader2, ArrowRight } from "lucide-react";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
 
-    if (!name || !email) {
-      toast.error("Please fill in all fields");
+    if (!name || !email || !password) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
     setIsLoading(true);
-    const registerToast = toast.loading("Setting up your account...");
+    const registerToast = toast.loading("Sending verification code...");
 
     try {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, purpose: "signup" }),
+        body: JSON.stringify({ email, purpose: "signup" }),
       });
 
       const data = await res.json();
@@ -38,7 +40,12 @@ export default function Register() {
       }
 
       toast.success(data.message || "Verification code sent!", { id: registerToast });
-      router.push(`/verify-email?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`);
+      
+      // Store data in session storage or pass via URL (be careful with password in URL, better use session storage)
+      const signupData = { name, email, phone, password };
+      sessionStorage.setItem("signup_data", JSON.stringify(signupData));
+      
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       toast.error(err.message, { id: registerToast });
     } finally {
@@ -51,7 +58,6 @@ export default function Register() {
   };
 
   return (
-feat/otp-authentication-1622790782403589352
     <div className="min-h-[80vh] flex items-center justify-center p-6 bg-luxury-black">
       <div className="w-full max-w-md bg-glass-bg border border-glass-border p-10 backdrop-blur-md rounded-sm shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-luxury-gold opacity-50"></div>
@@ -97,44 +103,42 @@ feat/otp-authentication-1622790782403589352
             />
           </div>
 
-    <div className={styles.authContainer}>
-      <div className={styles.authBox}>
-        <h1 className={styles.title}>Register</h1>
-        {error && <p className={styles.error}>{error}</p>}
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <Input
-            label="Name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <Button type="submit" className="w-full">
-            Create Account
-          </Button>
-        </form>
-         main
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-text-secondary uppercase tracking-widest flex items-center gap-2">
+              Phone Number (Optional)
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+8801234567890"
+              className="w-full p-4 bg-white/5 border border-white/10 text-white font-sans focus:outline-none focus:border-luxury-gold transition-colors"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-text-secondary uppercase tracking-widest flex items-center gap-2">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full p-4 bg-white/5 border border-white/10 text-white font-sans focus:outline-none focus:border-luxury-gold transition-colors"
+              required
+              disabled={isLoading}
+              minLength={8}
+            />
+          </div>
 
           <button
             type="submit"
             disabled={isLoading}
             className="mt-2 w-full p-4 bg-luxury-gold text-luxury-black font-semibold uppercase tracking-widest hover:bg-white transition-colors flex justify-center items-center gap-2"
           >
-            {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Send Verification Code"}
+            {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Continue to Verification"}
             {!isLoading && <ArrowRight size={18} />}
           </button>
         </form>

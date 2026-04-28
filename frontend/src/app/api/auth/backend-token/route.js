@@ -13,7 +13,7 @@ function getApiUrl() {
 
 function getBridgePassword(email) {
   const secret = process.env.BACKEND_AUTH_BRIDGE_SECRET || process.env.NEXTAUTH_SECRET;
-  return crypto.createHmac("sha256", secret).update(email.toLowerCase()).digest("hex");
+  return crypto.createHmac("sha256", secret).update(email.toLowerCase()).digest("hex").slice(0, 32);
 }
 
 async function backendPost(endpoint, body) {
@@ -31,13 +31,15 @@ async function backendPost(endpoint, body) {
 export async function POST() {
   const session = await getServerSession(authOptions);
   const email = session?.user?.email;
+  const phone = session?.user?.phone;
+  const identifier = email || phone;
 
-  if (!email) {
+  if (!identifier) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const password = getBridgePassword(email);
-  const loginBody = { email, password };
+  const password = getBridgePassword(identifier);
+  const loginBody = { email: identifier, password };
   const { response: loginResponse, data: loginData } = await backendPost("/auth/login", loginBody);
 
   if (loginResponse.ok) {
@@ -45,7 +47,7 @@ export async function POST() {
   }
 
   const registerBody = {
-    email,
+    email: identifier,
     password,
     name: session.user.name || null,
   };

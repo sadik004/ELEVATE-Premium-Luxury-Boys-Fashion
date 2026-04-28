@@ -23,7 +23,7 @@ import { Toaster } from "react-hot-toast";
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${playfair.variable} bg-luxury-black text-white antialiased`}>
+      <body className={`${inter.variable} ${playfair.variable} bg-luxury-pearl text-luxury-charcoal antialiased`}>
         <AuthSessionProvider>
           <ScrollProvider>
             <CustomCursor />
@@ -35,14 +35,15 @@ export default function RootLayout({ children }) {
               position="bottom-center"
               toastOptions={{
                 style: {
-                  background: '#0a0a0a',
-                  color: '#fff',
-                  border: '1px solid rgba(212, 175, 55, 0.2)',
+                  background: '#FDFDFD',
+                  color: '#333333',
+                  border: '1px solid rgba(51, 51, 51, 0.1)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
                 },
                 success: {
                   iconTheme: {
-                    primary: '#D4AF37',
-                    secondary: '#0a0a0a',
+                    primary: '#C5B358',
+                    secondary: '#FDFDFD',
                   },
                 },
               }}

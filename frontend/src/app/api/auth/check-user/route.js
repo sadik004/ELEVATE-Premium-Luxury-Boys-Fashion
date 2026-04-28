@@ -8,11 +8,14 @@ export async function POST(request) {
     const { email } = await request.json();
 
     if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+      return NextResponse.json({ error: "Identifier is required" }, { status: 400 });
     }
 
+    const identifier = email.trim().toLowerCase();
+    const isEmail = identifier.includes("@");
+
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: isEmail ? { email: identifier } : { phone: identifier },
       select: {
         name: true,
         image: true,

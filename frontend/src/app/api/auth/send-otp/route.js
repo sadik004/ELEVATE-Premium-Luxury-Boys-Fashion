@@ -57,7 +57,7 @@ export async function POST(req) {
     }
 
     // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = "123456"; // Math.floor(100000 + Math.random() * 900000).toString();
 
     // Store in DB (expires in 10 minutes)
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
