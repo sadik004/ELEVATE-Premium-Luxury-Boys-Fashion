@@ -1,8 +1,0 @@
-INFO:     127.0.0.1:49647 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58885 - "OPTIONS /api/products HTTP/1.1" 400 Bad Request
-INFO:     127.0.0.1:61973 - "OPTIONS /api/products HTTP/1.1" 400 Bad Request
-INFO:     127.0.0.1:62193 - "OPTIONS /api/products HTTP/1.1" 400 Bad Request
-INFO:     127.0.0.1:59810 - "GET / HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:59810 - "GET /favicon.ico HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:64290 - "GET /auth HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:64137 - "GET / HTTP/1.1" 404 Not Found
